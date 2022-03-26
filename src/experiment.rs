@@ -11,23 +11,23 @@ fn token_recognition() {
         Sonant::new("Identifier", r"^[a-z][a-z_]+"),
     ];
     let source = String::from("let dead_cat = \"I put my cat in a blender\"");
-    let mut tokenizer = Jayce::new(source, sonants);
-    assert_eq!(tokenizer.peek().value, "let");
-    assert_eq!(tokenizer.eat().kind, "Let");
-    assert_eq!(tokenizer.peek().value, " ");
-    assert_eq!(tokenizer.eat().kind, "WhiteSpace");
-    assert_eq!(tokenizer.peek().value, "dead_cat");
-    assert_eq!(tokenizer.eat().kind, "Identifier");
-    assert_eq!(tokenizer.peek().value, " ",);
-    assert_eq!(tokenizer.eat().kind, "WhiteSpace");
-    assert_eq!(tokenizer.peek().value, "=");
-    assert_eq!(tokenizer.eat().kind, "Equals");
-    assert_eq!(tokenizer.peek().value, " ",);
-    assert_eq!(tokenizer.eat().kind, "WhiteSpace");
-    assert_eq!(tokenizer.peek().value, "\"I put my cat in a blender\"");
-    assert_eq!(tokenizer.eat().kind, "String");
-    assert_eq!(tokenizer.peek().value, "End of File");
-    assert_eq!(tokenizer.eat().kind, "EoF");
+    let mut jayce = Jayce::new(source, sonants);
+    assert_eq!(jayce.peek().value, "let");
+    assert_eq!(jayce.eat().kind, "Let");
+    assert_eq!(jayce.peek().value, " ");
+    assert_eq!(jayce.eat().kind, "WhiteSpace");
+    assert_eq!(jayce.peek().value, "dead_cat");
+    assert_eq!(jayce.eat().kind, "Identifier");
+    assert_eq!(jayce.peek().value, " ",);
+    assert_eq!(jayce.eat().kind, "WhiteSpace");
+    assert_eq!(jayce.peek().value, "=");
+    assert_eq!(jayce.eat().kind, "Equals");
+    assert_eq!(jayce.peek().value, " ",);
+    assert_eq!(jayce.eat().kind, "WhiteSpace");
+    assert_eq!(jayce.peek().value, "\"I put my cat in a blender\"");
+    assert_eq!(jayce.eat().kind, "String");
+    assert_eq!(jayce.peek().value, "End of File");
+    assert_eq!(jayce.eat().kind, "EoF");
 }
 
 #[test]
@@ -37,13 +37,13 @@ fn line_and_column() {
         Sonant::new("Whitespace", r"^\s+"),
     ];
     let source = String::from("WHAT\nYOUR_CAT_DIED\n\n\n\nImpressive");
-    let mut tokenizer = Jayce::new(source, sonants);
-    assert_eq!(tokenizer.peek().line, 1);
-    assert_eq!(tokenizer.eat().column, 5);
-    assert_eq!(tokenizer.peek().line, 2);
-    assert_eq!(tokenizer.eat().column, 14);
-    assert_eq!(tokenizer.peek().line, 6);
-    assert_eq!(tokenizer.eat().column, 11);
-    assert_eq!(tokenizer.peek().line, 6);
-    assert_eq!(tokenizer.eat().column, 11);
+    let mut jayce = Jayce::new(source, sonants);
+    assert_eq!(jayce.peek().line, 1);
+    assert_eq!(jayce.eat().column, 5);
+    assert_eq!(jayce.peek().line, 2);
+    assert_eq!(jayce.eat().column, 14);
+    assert_eq!(jayce.peek().line, 6);
+    assert_eq!(jayce.eat().column, 11);
+    assert_eq!(jayce.peek().line, 6);
+    assert_eq!(jayce.eat().column, 11);
 }

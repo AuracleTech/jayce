@@ -60,13 +60,6 @@ impl Jayce {
             if let Some(result) = result {
                 self.cursor += result.end();
                 self.column += result.end();
-                println!(
-                    "VALUE [{}] REGEX /{}/ line {} column {}",
-                    result.as_str(),
-                    sonant.regex,
-                    self.line,
-                    self.column
-                );
                 return self.next = Token {
                     kind: sonant.name.clone(),
                     value: result.as_str().to_string(),
