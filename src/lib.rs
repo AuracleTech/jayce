@@ -2,10 +2,10 @@ use regex::Regex;
 
 #[cfg(test)]
 mod experiment;
-pub mod sonant;
-use sonant::Sonant;
-pub mod token;
-use token::Token;
+mod sonant;
+pub use sonant::Sonant;
+mod token;
+pub use token::Token;
 
 #[derive(Debug)]
 pub struct Jayce {
