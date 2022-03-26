@@ -2,9 +2,9 @@ use regex::Regex;
 
 #[cfg(test)]
 mod experiment;
-mod sonant;
+pub mod sonant;
 use sonant::Sonant;
-mod token;
+pub mod token;
 use token::Token;
 
 #[derive(Debug)]

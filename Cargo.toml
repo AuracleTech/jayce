@@ -1,6 +1,6 @@
 [package]
 name = "jayce"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "jayce is a blazing fast tokenizer"
 repository = "https://github.com/canndrew/malk-lexer"
