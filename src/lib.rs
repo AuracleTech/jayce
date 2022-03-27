@@ -25,6 +25,18 @@ impl<'a> Jayce<'a> {
             column: 1,
         }
     }
+    /*
+    TODO : token lifetime on token.kind and token.value.
+    duos
+                .into_iter()
+                .map(|(s1, s2)| {
+                    (
+                        s1.to_owned(),
+                        Regex::new(&s2).expect("Failed to parse regex from string."),
+                    )
+                })
+                .collect(),
+    */
 
     pub fn eat(&mut self) -> Token {
         if self.cursor >= self.source.len() {
