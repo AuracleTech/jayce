@@ -1,30 +1,24 @@
+#![doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/README.md"))]
 use regex::Regex;
 
-#[cfg(test)]
-mod experiment;
 mod token;
 pub use token::Token;
 
-pub struct Jayce {
-    source: String,
-    duos: Vec<(String, Regex)>,
+pub struct Jayce<'a> {
+    source: &'a str,
+    duos: Vec<(&'a str, Regex)>,
     cursor: usize,
-    line: usize,
-    column: usize,
+    line: u32,
+    column: u32,
 }
 
-impl Jayce {
-    pub fn new(source: &str, duos: Vec<(&str, &str)>) -> Jayce {
+impl<'a> Jayce<'a> {
+    pub fn new(source: &'a str, duos: &[(&'a str, &str)]) -> Jayce<'a> {
         Self {
-            source: source.to_owned(),
+            source,
             duos: duos
-                .into_iter()
-                .map(|(s1, s2)| {
-                    (
-                        s1.to_owned(),
-                        Regex::new(&s2).expect("Failed to parse regex from string."),
-                    )
-                })
+                .iter()
+                .map(|&(k, v)| (k, Regex::new(v).expect("Invalid regex.")))
                 .collect(),
             cursor: 0,
             line: 1,
@@ -49,10 +43,10 @@ impl Jayce {
             let result = &duo.1.find(buffer);
             if let Some(result) = result {
                 self.cursor += result.end();
-                self.column += result.end();
+                self.column += result.end() as u32;
                 return Token {
-                    kind: duo.0.to_owned(),
-                    value: result.as_str().to_owned(),
+                    kind: duo.0,
+                    value: result.as_str(),
                     line: self.line,
                     column: self.column,
                 };

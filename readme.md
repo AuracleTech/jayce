@@ -2,7 +2,7 @@
 
 #### Token
 
-```rust
+```rust,ignore
 pub struct Token {
     pub kind: String,
     pub value: String,
@@ -13,14 +13,16 @@ pub struct Token {
 
 #### Tokenizer
 
-```rust
+```rust,ignore
 Jayce::new(source: &str, duos: Vec<(&str, &str)>);
 ```
 
 #### Example
 
 ```rust
-let duos: Vec<(&str, &str)> = vec![
+use jayce::Jayce;
+
+let duos: &[(&str, &str)] = &[
     ("WhiteSpace", r"^\s+"),
     ("identifiers", "^[a-z][a-z_]*"),
     ("number", "^[0-9]+"),
