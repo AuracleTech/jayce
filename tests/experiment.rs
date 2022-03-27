@@ -10,7 +10,6 @@ fn verify_kind_and_value() {
         ("Identifier", r"^[a-z][a-z_]+"),
     ];
     let source = "let dead_cat = \"I put my cat in a blender\"";
-    //&str means
     let mut jayce = Jayce::new(source, duos);
     let token = jayce.eat();
     assert_eq!(token.value, "let");
