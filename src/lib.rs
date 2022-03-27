@@ -2,25 +2,30 @@ use regex::Regex;
 
 #[cfg(test)]
 mod experiment;
-mod sonant;
-pub use sonant::Sonant;
 mod token;
 pub use token::Token;
 
-#[derive(Debug)]
 pub struct Jayce {
     source: String,
-    sonants: Vec<Sonant>,
+    duos: Vec<(String, Regex)>,
     cursor: usize,
     line: usize,
     column: usize,
 }
 
 impl Jayce {
-    pub fn new(source: String, sonants: Vec<Sonant>) -> Jayce {
+    pub fn new(source: &str, duos: Vec<(&str, &str)>) -> Jayce {
         Self {
-            source,
-            sonants,
+            source: source.to_owned(),
+            duos: duos
+                .into_iter()
+                .map(|(s1, s2)| {
+                    (
+                        s1.to_owned(),
+                        Regex::new(&s2).expect("Failed to parse regex from string."),
+                    )
+                })
+                .collect(),
             cursor: 0,
             line: 1,
             column: 1,
@@ -38,15 +43,16 @@ impl Jayce {
             self.column = 1;
         }
 
-        for sonant in self.sonants.iter() {
-            let regex = Regex::new(&sonant.regex).expect("Failed to parse regex provided.");
-            let result = regex.find(&self.source[self.cursor..]);
+        let buffer = &self.source[self.cursor..];
+
+        for duo in self.duos.iter() {
+            let result = &duo.1.find(buffer);
             if let Some(result) = result {
                 self.cursor += result.end();
                 self.column += result.end();
                 return Token {
-                    kind: sonant.name.clone(),
-                    value: result.as_str().to_string(),
+                    kind: duo.0.to_owned(),
+                    value: result.as_str().to_owned(),
                     line: self.line,
                     column: self.column,
                 };

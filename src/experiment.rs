@@ -1,17 +1,17 @@
-use crate::{sonant::Sonant, Jayce};
+use crate::Jayce;
 
 #[test]
 fn token_recognition() {
-    let sonants: Vec<Sonant> = vec![
-        Sonant::new("WhiteSpace", r"^\s+"),
-        Sonant::new("Let", r"^let"),
-        Sonant::new("Equals", r"^="),
-        Sonant::new("String", r#"^"[^"]*""#),
-        Sonant::new("Number", r"^[0-9]+"),
-        Sonant::new("Identifier", r"^[a-z][a-z_]+"),
+    let duos: Vec<(&str, &str)> = vec![
+        ("WhiteSpace", r"^\s+"),
+        ("Let", r"^let"),
+        ("Assign", r"^="),
+        ("String", r#"^"[^"]*""#),
+        ("Identifier", r"^[a-z][a-z_]+"),
     ];
-    let source = String::from("let dead_cat = \"I put my cat in a blender\"");
-    let mut jayce = Jayce::new(source, sonants);
+    let source = "let dead_cat = \"I put my cat in a blender\"";
+    //&str means
+    let mut jayce = Jayce::new(source, duos);
     let token = jayce.eat();
     assert_eq!(token.value, "let");
     assert_eq!(token.kind, "Let");
@@ -26,7 +26,7 @@ fn token_recognition() {
     assert_eq!(token.kind, "WhiteSpace");
     let token = jayce.eat();
     assert_eq!(token.value, "=");
-    assert_eq!(token.kind, "Equals");
+    assert_eq!(token.kind, "Assign");
     let token = jayce.eat();
     assert_eq!(token.value, " ",);
     assert_eq!(token.kind, "WhiteSpace");
@@ -40,12 +40,9 @@ fn token_recognition() {
 
 #[test]
 fn line_and_column() {
-    let sonants: Vec<Sonant> = vec![
-        Sonant::new("Text", r#"^[a-zA-Z][a-zA-Z_]+"#),
-        Sonant::new("Whitespace", r"^\s+"),
-    ];
-    let source = String::from("WHAT\nYOUR_CAT_DIED\n\n\n\nImpressive");
-    let mut jayce = Jayce::new(source, sonants);
+    let duos: Vec<(&str, &str)> = vec![("Text", r#"^[a-zA-Z][a-zA-Z_]+"#), ("Whitespace", r"^\s+")];
+    let source = "WHAT\nYOUR_CAT_DIED\n\n\n\nImpressive";
+    let mut jayce = Jayce::new(source, duos);
     let token = jayce.eat();
     assert_eq!(token.line, 1);
     assert_eq!(token.column, 5);
@@ -58,4 +55,20 @@ fn line_and_column() {
     let token = jayce.eat();
     assert_eq!(token.line, 6);
     assert_eq!(token.column, 11);
+}
+
+#[test]
+fn readme_example() {
+    let duos: Vec<(&str, &str)> = vec![
+        ("WhiteSpace", r"^\s+"),
+        ("identifiers", "^[a-z][a-z_]*"),
+        ("number", "^[0-9]+"),
+        ("operator", "^[-+*/%]"),
+    ];
+
+    let source = "exam_result = 89/100";
+
+    let mut jayce = Jayce::new(source, duos);
+
+    println!("{:?}", jayce.eat());
 }

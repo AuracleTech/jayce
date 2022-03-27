@@ -1,9 +1,9 @@
 [package]
 name = "jayce"
-version = "0.1.3"
+version = "0.2.0"
 edition = "2021"
 description = "jayce is a blazing fast tokenizer"
-repository = "https://github.com/canndrew/malk-lexer"
+repository = "https://github.com/AuracleTech/jayce"
 license = "MIT"
 
 [dependencies]

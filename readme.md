@@ -11,33 +11,27 @@ pub struct Token {
 }
 ```
 
-#### Sonant
-
-```rust
-Sonant::new(kind: &str, regex: &str);
-```
-
 #### Tokenizer
 
 ```rust
-Jayce::new(source: String, sonants: Vec<Sonant>);
+Jayce::new(source: &str, duos: Vec<(&str, &str)>);
 ```
 
 #### Example
 
 ```rust
-let sonants: Vec<Sonant> = vec![
-    Sonant::new("WhiteSpace", r"^\s+"),
-    Sonant::new("identifiers", "^[a-z][a-z_]*"),
-    Sonant::new("number", "^[0-9]+"),
-    Sonant::new("operator", "^[-+*/%]"),
+let duos: Vec<(&str, &str)> = vec![
+    ("WhiteSpace", r"^\s+"),
+    ("identifiers", "^[a-z][a-z_]*"),
+    ("number", "^[0-9]+"),
+    ("operator", "^[-+*/%]"),
 ];
 
-let source = "math_exam = 89/100".to_owned();
+let source = "exam_result = 89/100";
 
-let mut jayce = Jayce::new(source, sonants);
+let mut jayce = Jayce::new(source, duos);
 
 println!("{:?}", jayce.eat());
 
-// Token { kind: "identifiers", value: "math_exam", line: 1, column: 10 }
+// Token { kind: "identifiers", value: "exam_result", line: 1, column: 12 }
 ```
