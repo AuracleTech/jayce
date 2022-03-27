@@ -29,7 +29,7 @@ let duos: &[(&str, &str)] = &[
     ("operator", "^[-+*/%]"),
 ];
 
-let source = "exam_result = 89/100";
+let source = "exam_result = 90/100";
 
 let mut jayce = Jayce::new(source, duos);
 
