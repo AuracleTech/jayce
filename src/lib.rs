@@ -53,8 +53,10 @@ impl<'a> Jayce<'a> {
             }
         }
         panic!(
-            "No regex match found on line {} column {}",
-            self.line, self.column
+            "No regex match found for character '{}' on line {} column {}",
+            buffer[0..1].to_owned(),
+            self.line,
+            self.column
         );
     }
 }
