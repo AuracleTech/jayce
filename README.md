@@ -11,10 +11,14 @@ pub struct Token {
 }
 ```
 
+End of File returns `Token` kind `EoF` value `End of File`
+
+New Lines returns `Token` kind `NewLine` value `\n`
+
 #### Tokenizer
 
 ```rust,ignore
-Jayce::new(source: &str, duos: Vec<(&str, &str)>);
+Jayce::new(source: &'a str, duos: &[(&'a str, &str)]);
 ```
 
 #### Example
@@ -22,18 +26,18 @@ Jayce::new(source: &str, duos: Vec<(&str, &str)>);
 ```rust
 use jayce::Jayce;
 
-let duos: &[(&str, &str)] = &[
+let duos = &[
     ("WhiteSpace", r"^\s+"),
-    ("identifiers", "^[a-z][a-z_]*"),
-    ("number", "^[0-9]+"),
-    ("operator", "^[-+*/%]"),
+    ("Name", r"^[a-z][a-z_]*"),
+    ("Number", r"^[0-9]+"),
+    ("Operator", r"^[-+*/%]"),
 ];
 
-let source = "exam_result = 90/100";
+let source = "zoe = 34";
 
 let mut jayce = Jayce::new(source, duos);
 
 println!("{:?}", jayce.eat());
 
-// Token { kind: "identifiers", value: "exam_result", line: 1, column: 12 }
+// Token { kind: "Name", value: "zoe", line: 1, column: 4 }
 ```

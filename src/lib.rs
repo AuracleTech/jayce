@@ -31,13 +31,14 @@ impl<'a> Jayce<'a> {
             return Token::from("EoF", "End of File", self.line, self.column);
         }
 
-        while self.source[self.cursor..].starts_with('\n') {
+        let buffer = &self.source[self.cursor..];
+
+        if buffer.starts_with('\n') {
             self.line += 1;
             self.cursor += 1;
             self.column = 1;
+            return Token::from("NewLine", "\n", self.line, self.column);
         }
-
-        let buffer = &self.source[self.cursor..];
 
         for duo in self.duos.iter() {
             let result = &duo.1.find(buffer);
