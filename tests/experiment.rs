@@ -9,7 +9,7 @@ fn verify_kind_and_value() {
         ("String", r#"^"[^"]*""#),
         ("Identifier", r"^[a-z][a-z_]+"),
     ];
-    let source = "let dead_cat = \"I put my cat in a blender\"";
+    let source = "let dead_cat = \"I put my cat in a blender\"\n";
     let mut jayce = Jayce::new(source, duos);
     let verif = vec![
         ("Let", "let"),
@@ -19,6 +19,7 @@ fn verify_kind_and_value() {
         ("Assign", "="),
         ("WhiteSpace", " "),
         ("String", "\"I put my cat in a blender\""),
+        ("NewLine", "\n"),
         ("EoF", "End of File"),
     ];
     for (kind, value) in verif {
