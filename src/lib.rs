@@ -6,12 +6,11 @@ pub use token::Token;
 
 pub struct Jayce<'a> {
     pub source: &'a str,
-    pub duos: Vec<(&'a str, Regex)>,
+    duos: Vec<(&'a str, Regex)>,
     pub cursor: usize,
     pub line: u32,
     pub column: u32,
     pub eat_count: usize,
-    pub tokens: Vec<Token<'a>>,
 }
 
 impl<'a> Jayce<'a> {
@@ -26,7 +25,6 @@ impl<'a> Jayce<'a> {
             line: 1,
             column: 1,
             eat_count: 0,
-            tokens: Vec::new(),
         }
     }
 
@@ -55,9 +53,6 @@ impl<'a> Jayce<'a> {
         self.cursor += value.len();
         self.column += value.len() as u32;
         self.eat_count += 1;
-
-        let token = Token::from(kind, value, self.line, self.column);
-        self.tokens.push(token.clone());
-        Some(token)
+        Some(Token::from(kind, value, self.line, self.column))
     }
 }
