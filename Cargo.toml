@@ -1,10 +1,10 @@
 [package]
 name = "jayce"
-version = "0.3.1"
+version = "1.0.0"
 edition = "2021"
 description = "jayce is a blazing fast tokenizer 🌌"
 repository = "https://github.com/AuracleTech/jayce"
 license = "MIT"
 
 [dependencies]
-regex = "1.5.5"
+regex = "1.7.0"
