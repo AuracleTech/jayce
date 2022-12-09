@@ -1,55 +1,35 @@
 use jayce::Jayce;
 
 #[test]
-fn verify_kind_and_value() {
+fn verify_tokenizer_can_eat_every_token() {
+    let source = "let dead_cat = \"I put my cat in a blender\"\nWA";
     let duos = &[
-        ("WhiteSpace", r"^\s+"),
-        ("Let", r"^let"),
-        ("Assign", r"^="),
-        ("String", r#"^"[^"]*""#),
-        ("Identifier", r"^[a-z][a-z_]+"),
+        ("newline", r"^\n"),
+        ("whitespace", r"^\s+"),
+        ("let", r"^let"),
+        ("assign", r"^="),
+        ("string", r#"^"[^"]*""#),
+        ("identifier", r"^[a-z][a-z_]+"),
     ];
-    let source = "let dead_cat = \"I put my cat in a blender\"\n";
-    let mut jayce = Jayce::new(source, duos);
     let verif = vec![
-        ("Let", "let"),
-        ("WhiteSpace", " "),
-        ("Identifier", "dead_cat"),
-        ("WhiteSpace", " "),
-        ("Assign", "="),
-        ("WhiteSpace", " "),
-        ("String", "\"I put my cat in a blender\""),
-        ("NewLine", "\n"),
-        ("EoF", "End of File"),
+        ("let", "let", 1, 4),
+        ("whitespace", " ", 1, 5),
+        ("identifier", "dead_cat", 1, 13),
+        ("whitespace", " ", 1, 14),
+        ("assign", "=", 1, 15),
+        ("whitespace", " ", 1, 16),
+        ("string", "\"I put my cat in a blender\"", 1, 43),
+        ("newline", "\n", 2, 1),
+        ("unknown", "W", 2, 2),
+        ("unknown", "A", 2, 3),
+        ("eof", "", 2, 3),
     ];
-    for (kind, value) in verif {
-        let token = jayce.eat();
-        assert_eq!(kind, token.kind);
-        assert_eq!(value, token.value);
-    }
-}
-
-#[test]
-fn verify_line_and_column() {
-    let duos = &[
-        ("Text", r#"^[a-zA-Z][a-zA-Z_?!]+"#),
-        ("Whitespace", r"^\s+"),
-    ];
-    let source = "WHAT!\nYour_cat_DIED?\n\n\n\nImpressive";
     let mut jayce = Jayce::new(source, duos);
-    let verif = vec![
-        (1, 6),
-        (2, 1),
-        (2, 15),
-        (3, 1),
-        (4, 1),
-        (5, 1),
-        (6, 1),
-        (6, 11),
-    ];
-    for (line, column) in verif {
-        let token = jayce.eat();
-        assert_eq!(line, token.line);
-        assert_eq!(column, token.column);
+    while let Some(token) = jayce.eat() {
+        let (kind, value, line, column) = verif[jayce.eat_count - 1];
+        assert_eq!(token.kind, kind);
+        assert_eq!(token.value, value);
+        assert_eq!(token.line, line);
+        assert_eq!(token.column, column);
     }
 }

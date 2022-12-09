@@ -1,43 +1,30 @@
 # jayce
 
-#### Token
+End of file returns no token
 
-```rust,ignore
-pub struct Token<'a> {
-    pub kind: &'a str,
-    pub value: &'a str,
-    pub line: u32,
-    pub column: u32,
-}
-```
-
-End of File returns `Token` kind `EoF` value `End of File`
-
-New Lines returns `Token` kind `NewLine` value `\n`
-
-#### Tokenizer
-
-```rust,ignore
-Jayce::new(source: &'a str, duos: &[(&'a str, &str)]);
-```
+Unknown character returns a `Token` of kind `unknown` with value of the unknown character
 
 #### Example
 
 ```rust
 use jayce::Jayce;
 
-let duos = &[
-    ("WhiteSpace", r"^\s+"),
-    ("Name", r"^[a-z][a-z_]*"),
-    ("Number", r"^[0-9]+"),
-    ("Operator", r"^[-+*/%]"),
-];
-
-let source = "zoe = 34";
-
-let mut jayce = Jayce::new(source, duos);
-
-println!("{:?}", jayce.eat());
-
-// Token { kind: "Name", value: "zoe", line: 1, column: 4 }
+fn main () {
+    let source = "Excalibur = 5000$";
+    let duos = &[
+        ("newline", r"^\n"),
+        ("whitespace", r"^\s+"),
+        ("name", r"^[a-zA-Z_]+"),
+        ("price", r"^[0-9]+\$"),
+        ("equals", r"^="),
+    ];
+    let mut jayce = Jayce::new(source, duos);
+    let token = jayce.eat();
+    // Token {
+    //     kind: "name",
+    //     value: "excalibur",
+    //     line: 1,
+    //     column: 10
+    // }
+}
 ```

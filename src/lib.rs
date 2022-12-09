@@ -5,11 +5,13 @@ mod token;
 pub use token::Token;
 
 pub struct Jayce<'a> {
-    source: &'a str,
-    duos: Vec<(&'a str, Regex)>,
-    cursor: usize,
-    line: u32,
-    column: u32,
+    pub source: &'a str,
+    pub duos: Vec<(&'a str, Regex)>,
+    pub cursor: usize,
+    pub line: u32,
+    pub column: u32,
+    pub eat_count: usize,
+    pub tokens: Vec<Token<'a>>,
 }
 
 impl<'a> Jayce<'a> {
@@ -23,41 +25,39 @@ impl<'a> Jayce<'a> {
             cursor: 0,
             line: 1,
             column: 1,
+            eat_count: 0,
+            tokens: Vec::new(),
         }
     }
 
-    pub fn eat(&mut self) -> Token {
+    pub fn eat(&mut self) -> Option<Token<'a>> {
         if self.cursor >= self.source.len() {
-            return Token::from("EoF", "End of File", self.line, self.column);
+            return None;
         }
 
         let buffer = &self.source[self.cursor..];
-
-        if buffer.starts_with('\n') {
-            self.line += 1;
-            self.cursor += 1;
-            self.column = 1;
-            return Token::from("NewLine", "\n", self.line, self.column);
-        }
+        let mut kind = "unknown";
+        let mut value = &buffer[0..1];
 
         for duo in self.duos.iter() {
-            let result = &duo.1.find(buffer);
-            if let Some(result) = result {
-                self.cursor += result.end();
-                self.column += result.end() as u32;
-                return Token {
-                    kind: duo.0,
-                    value: result.as_str(),
-                    line: self.line,
-                    column: self.column,
-                };
+            if let Some(result) = &duo.1.find(buffer) {
+                kind = duo.0;
+                value = result.as_str();
+                let newlines = value.matches('\n').count();
+                if newlines > 0 {
+                    self.line += newlines as u32;
+                    self.column = 0;
+                }
+                break;
             }
         }
-        panic!(
-            "No regex match found for character '{}' on line {} column {}",
-            buffer[0..1].to_owned(),
-            self.line,
-            self.column
-        );
+
+        self.cursor += value.len();
+        self.column += value.len() as u32;
+        self.eat_count += 1;
+
+        let token = Token::from(kind, value, self.line, self.column);
+        self.tokens.push(token.clone());
+        Some(token)
     }
 }
