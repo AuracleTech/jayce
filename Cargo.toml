@@ -2,7 +2,7 @@
 name = "jayce"
 version = "1.0.0"
 edition = "2021"
-description = "jayce is a blazing fast tokenizer 🌌"
+description = "jayce is a simple tokenizer 🌌"
 repository = "https://github.com/AuracleTech/jayce"
 license = "MIT"
 
