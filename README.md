@@ -1,24 +1,25 @@
 # jayce
 
-Jayce is a blazing fast tokenizer
+Jayce is a simple tokenizer
 
 #### Example
 
 ```rust
-use jayce::Jayce;
+use jayce::Tokenizer;
 
-fn main () {
-    let source = "Excalibur = 5000$";
+fn main() {
+    let source = "let value = 5000$";
     let duos = &[
-        ("newline", r"^\n"),
+        ("keywords", r"^(let|const)"),
         ("whitespace", r"^\s+"),
-        ("name", r"^[a-zA-Z_]+"),
+        ("variable", r"^[a-zA-Z_]+"),
         ("price", r"^[0-9]+\$"),
         ("equals", r"^="),
+        ("newline", r"^\n"),
     ];
-    let mut jayce = Jayce::new(source, duos);
+    let mut tokenizer = Tokenizer::new(source, duos);
 
-    while let Some(token) = jayce.eat() {
+    while let Some(token) = tokenizer.eat() {
         println!("{:?}", token);
     }
 }
@@ -27,25 +28,17 @@ fn main () {
 #### Result
 
 ```rust,ignore
-Token { kind: "name", value: "Excalibur", line: 1, column: 10 }
-Token { kind: "whitespace", value: " ", line: 1, column: 11 }
-Token { kind: "equals", value: "=", line: 1, column: 12 }
-Token { kind: "whitespace", value: " ", line: 1, column: 13 }
-Token { kind: "price", value: "5000$", line: 1, column: 18 }
+Token { kind: Some("keywords"), value: "let", line: 1, column: 4 }
+Token { kind: Some("whitespace"), value: " ", line: 1, column: 5 }
+Token { kind: Some("variable"), value: "value", line: 1, column: 10 }
+Token { kind: Some("whitespace"), value: " ", line: 1, column: 11 }
+Token { kind: Some("equals"), value: "=", line: 1, column: 12 }
+Token { kind: Some("whitespace"), value: " ", line: 1, column: 13 }
+Token { kind: Some("price"), value: "5000$", line: 1, column: 18 }
 ```
 
 #### Info
 
 Reaching the end of source returns `None`
 
-Unknown character returns a `Token` of kind `unknown` with value of the unknown character
-
-```rust,ignore
-pub struct Jayce<'a> {
-    pub source: &'a str, // source to tokenize
-    pub cursor: usize, // current position in the source
-    pub line: u32, // current line
-    pub column: u32, // current column
-    pub eat_count: usize, // total number of tokens eaten
-}
-```
+Unknown characters returns a `Token` with `kind` as `None` and `value` of the unknown character

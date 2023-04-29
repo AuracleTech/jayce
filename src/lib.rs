@@ -1,30 +1,33 @@
-#![doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/README.md"))]
 use regex::Regex;
 
-mod token;
-pub use token::Token;
-
-pub struct Jayce<'a> {
-    pub source: &'a str,
+pub struct Tokenizer<'a> {
+    source: &'a str,
     duos: Vec<(&'a str, Regex)>,
-    pub cursor: usize,
-    pub line: u32,
-    pub column: u32,
-    pub eat_count: usize,
+    cursor: usize,
+    line: u32,
+    column: u32,
 }
 
-impl<'a> Jayce<'a> {
-    pub fn new(source: &'a str, duos: &[(&'a str, &str)]) -> Jayce<'a> {
+#[derive(Debug, Clone)]
+pub struct Token<'a> {
+    pub kind: Option<&'a str>,
+    pub value: &'a str,
+    pub line: u32,
+    pub column: u32,
+}
+
+impl<'a> Tokenizer<'a> {
+    pub fn new(source: &'a str, duos: &[(&'a str, &str)]) -> Tokenizer<'a> {
+        let duos = duos
+            .iter()
+            .map(|&(k, v)| (k, Regex::new(v).expect("Invalid regex.")))
+            .collect();
         Self {
             source,
-            duos: duos
-                .iter()
-                .map(|&(k, v)| (k, Regex::new(v).expect("Invalid regex.")))
-                .collect(),
+            duos,
             cursor: 0,
             line: 1,
             column: 1,
-            eat_count: 0,
         }
     }
 
@@ -33,26 +36,32 @@ impl<'a> Jayce<'a> {
             return None;
         }
 
-        let buffer = &self.source[self.cursor..];
-        let mut kind = "unknown";
-        let mut value = &buffer[0..1];
+        let mut kind: Option<&'a str> = None;
+        let mut value = &self.source[self.cursor..self.cursor + 1];
+        let mut newlines = 0;
 
-        for duo in self.duos.iter() {
-            if let Some(result) = &duo.1.find(buffer) {
-                kind = duo.0;
+        for (duo_kind, duo_regex) in &self.duos {
+            if let Some(result) = duo_regex.find(&self.source[self.cursor..]) {
+                kind = Some(duo_kind);
                 value = result.as_str();
-                let newlines = value.matches('\n').count();
-                if newlines > 0 {
-                    self.line += newlines as u32;
-                    self.column = 0;
-                }
+                newlines = value.chars().filter(|&c| c == '\n').count() as u32;
                 break;
             }
         }
 
         self.cursor += value.len();
-        self.column += value.len() as u32;
-        self.eat_count += 1;
-        Some(Token::from(kind, value, self.line, self.column))
+        self.line += newlines;
+        self.column = if newlines > 0 {
+            value.len() as u32
+        } else {
+            self.column + value.len() as u32
+        };
+
+        Some(Token {
+            kind,
+            value,
+            line: self.line,
+            column: self.column,
+        })
     }
 }
