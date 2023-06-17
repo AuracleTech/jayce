@@ -1,53 +1,68 @@
-use jayce::Tokenizer;
-
 #[test]
-fn verify_tokenizer() {
-    let source = "let dead_cat = \"I mix my cat in a blender\"\nWA";
-    let duos = &[
-        ("newline", r"^\n"),
-        ("whitespace", r"^\s+"),
-        ("keyword", r"^let"),
-        ("assign", r"^="),
-        ("string", r#"^"[^"]*""#),
-        ("identifier", r"^[a-z][a-z_]+"),
-    ];
-    let mut expected = vec![
-        (Some("keyword"), "let", 1, 4),
-        (Some("whitespace"), " ", 1, 5),
-        (Some("identifier"), "dead_cat", 1, 13),
-        (Some("whitespace"), " ", 1, 14),
-        (Some("assign"), "=", 1, 15),
-        (Some("whitespace"), " ", 1, 16),
-        (Some("string"), "\"I mix my cat in a blender\"", 1, 43),
-        (Some("newline"), "\n", 2, 1),
-        (None, "W", 2, 2),
-        (None, "A", 2, 3),
-    ];
-    let mut jayce = Tokenizer::new(source, duos);
+fn multiline_example() {
+    let mut jayce = jayce::Tokenizer::new();
+    jayce.add("newline", r"^\n");
+    jayce.add("whitespace", r"^\s+");
+    jayce.add("keyword", r"^let");
+    jayce.add("assign", r"^=");
+    jayce.add("string", r#"^"[^"]*""#);
+    jayce.add("identifier", r"^[a-z_]+");
 
-    while let Some(token) = jayce.eat() {
-        let (kind, value, line, column) = expected.remove(0);
-        assert_eq!(token.kind, kind);
-        assert_eq!(token.value, value);
+    let source = "let dead_cat = \"I mix my cat in a blender\"\nNOTHINGelse";
+
+    let mut truth = vec![
+        ("keyword", "let", 1, 4),
+        ("whitespace", " ", 1, 5),
+        ("identifier", "dead_cat", 1, 13),
+        ("whitespace", " ", 1, 14),
+        ("assign", "=", 1, 15),
+        ("whitespace", " ", 1, 16),
+        ("string", "\"I mix my cat in a blender\"", 1, 43),
+        ("newline", "\n", 2, 1),
+    ];
+
+    for expected in truth.drain(..) {
+        let (kind, value, line, column) = expected;
+        let token = jayce.eat(source).expect("No token found when expected");
+        assert_eq!(kind, jayce.kinds[token.kind]);
+        assert_eq!(value, &source[token.start..token.end]);
         assert_eq!(token.line, line);
         assert_eq!(token.column, column);
     }
 }
 
 #[test]
+fn readme_example() {
+    let mut jayce = jayce::Tokenizer::new();
+    jayce.add("newline", r"^\n");
+    jayce.add("whitespace", r"^\s+");
+    jayce.add("name", r"^[a-zA-Z_]+");
+    jayce.add("price", r"^[0-9]+\$");
+    jayce.add("equals", r"^=");
 
-fn meme() {
     let source = "Excalibur = 5000$";
-    let duos = &[
-        ("newline", r"^\n"),
-        ("whitespace", r"^\s+"),
-        ("name", r"^[a-zA-Z_]+"),
-        ("price", r"^[0-9]+\$"),
-        ("equals", r"^="),
-    ];
-    let mut jayce = Tokenizer::new(source, duos);
 
-    while let Some(token) = jayce.eat() {
-        println!("{:?}", token);
+    let mut truth = vec![
+        ("name", "Excalibur", 1, 10),
+        ("whitespace", " ", 1, 11),
+        ("equals", "=", 1, 12),
+        ("whitespace", " ", 1, 13),
+        ("price", "5000$", 1, 18),
+    ];
+
+    for expected in truth.drain(..) {
+        let (kind, value, line, column) = expected;
+        let token = jayce.eat(source).expect("No token found when expected");
+        assert_eq!(kind, jayce.kinds[token.kind]);
+        assert_eq!(value, &source[token.start..token.end]);
+        assert_eq!(token.line, line);
+        assert_eq!(token.column, column);
     }
+}
+
+#[test]
+#[should_panic]
+fn bad_format_regex() {
+    let mut jayce = jayce::Tokenizer::new();
+    jayce.add("newline", "(? WRONG REGEX");
 }

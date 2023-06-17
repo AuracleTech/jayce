@@ -1,18 +1,14 @@
-use jayce::Tokenizer;
-
 fn main() {
-    let source = "let value = 5000$";
-    let duos = &[
-        ("keywords", r"^(let|const)"),
-        ("whitespace", r"^\s+"),
-        ("variable", r"^[a-zA-Z_]+"),
-        ("price", r"^[0-9]+\$"),
-        ("equals", r"^="),
-        ("newline", r"^\n"),
-    ];
-    let mut tokenizer = Tokenizer::new(source, duos);
+    let mut jayce = jayce::Tokenizer::new();
+    jayce.add("newline", r"^\n");
+    jayce.add("whitespace", r"^\s+");
+    jayce.add("name", r"^[a-zA-Z_]+");
+    jayce.add("price", r"^[0-9]+\$");
+    jayce.add("equals", r"^=");
 
-    while let Some(token) = tokenizer.eat() {
+    let source = "Excalibur = 5000$";
+
+    while let Some(token) = jayce.eat(source) {
         println!("{:?}", token);
     }
 }

@@ -5,39 +5,31 @@ Jayce is a simple tokenizer
 #### Example
 
 ```rust
-use jayce::Tokenizer;
+let mut jayce = jayce::Tokenizer::new();
+jayce.add("newline", r"^\n");
+jayce.add("whitespace", r"^\s+");
+jayce.add("name", r"^[a-zA-Z_]+");
+jayce.add("price", r"^[0-9]+\$");
+jayce.add("equals", r"^=");
 
-fn main() {
-    let source = "let value = 5000$";
-    let duos = &[
-        ("keywords", r"^(let|const)"),
-        ("whitespace", r"^\s+"),
-        ("variable", r"^[a-zA-Z_]+"),
-        ("price", r"^[0-9]+\$"),
-        ("equals", r"^="),
-        ("newline", r"^\n"),
-    ];
-    let mut tokenizer = Tokenizer::new(source, duos);
+let source = "Excalibur = 5000$";
 
-    while let Some(token) = tokenizer.eat() {
-        println!("{:?}", token);
-    }
+while let Some(token) = jayce.eat(source) {
+    println!("{:?}", token);
 }
 ```
 
-#### Result
+##### Result
 
 ```rust,ignore
-Token { kind: Some("keywords"), value: "let", line: 1, column: 4 }
-Token { kind: Some("whitespace"), value: " ", line: 1, column: 5 }
-Token { kind: Some("variable"), value: "value", line: 1, column: 10 }
-Token { kind: Some("whitespace"), value: " ", line: 1, column: 11 }
-Token { kind: Some("equals"), value: "=", line: 1, column: 12 }
-Token { kind: Some("whitespace"), value: " ", line: 1, column: 13 }
-Token { kind: Some("price"), value: "5000$", line: 1, column: 18 }
+Token { kind: 2, start: 0, end: 9, line: 1, column: 10 }
+Token { kind: 1, start: 9, end: 10, line: 1, column: 11 }
+Token { kind: 4, start: 10, end: 11, line: 1, column: 12 }
+Token { kind: 1, start: 11, end: 12, line: 1, column: 13 }
+Token { kind: 3, start: 12, end: 17, line: 1, column: 18 }
 ```
 
-#### Info
+##### Info
 
 Reaching the end of source returns `None`
 
