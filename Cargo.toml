@@ -8,3 +8,10 @@ license = "MIT"
 
 [dependencies]
 regex = "1.8.4"
+
+[dev-dependencies]
+criterion = { version = "0.5.1", features = ["html_reports"] }
+
+[[bench]]
+name = "bench"
+harness = false
