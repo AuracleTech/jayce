@@ -1,8 +1,6 @@
-use regex::Regex;
-
 pub struct Tokenizer {
     pub kinds: Vec<String>,
-    regexes: Vec<Regex>,
+    regexes: Vec<regex::Regex>,
     cursor: usize,
     line: u32,
     column: u32,
@@ -15,6 +13,12 @@ pub struct Token {
     pub end: usize,
     pub line: u32,
     pub column: u32,
+}
+
+pub enum TokenizerResult {
+    Token(Token),
+    Nothing(String),
+    End,
 }
 
 impl Tokenizer {
@@ -30,12 +34,13 @@ impl Tokenizer {
 
     pub fn add(&mut self, kind: &str, regex: &str) {
         self.kinds.push(kind.to_string());
-        self.regexes.push(Regex::new(regex).expect("Invalid regex"));
+        self.regexes
+            .push(regex::Regex::new(regex).expect("Invalid regex"));
     }
 
-    pub fn eat(&mut self, source: &str) -> Option<Token> {
+    pub fn next(&mut self, source: &str) -> TokenizerResult {
         if self.cursor >= source.len() {
-            return None;
+            return TokenizerResult::End;
         }
 
         for (index, regex) in self.regexes.iter().enumerate() {
@@ -51,7 +56,7 @@ impl Tokenizer {
                     self.column + value.len() as u32
                 };
 
-                return Some(Token {
+                return TokenizerResult::Token(Token {
                     kind: index,
                     start: self.cursor - matched.end(),
                     end: self.cursor,
@@ -61,6 +66,6 @@ impl Tokenizer {
             }
         }
 
-        panic!("No token at line {} col {}", self.line, self.column);
+        TokenizerResult::Nothing(format!("No token line {} col {}", self.line, self.column))
     }
 }

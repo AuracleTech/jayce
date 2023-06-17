@@ -1,5 +1,7 @@
+use jayce::{Tokenizer, TokenizerResult};
+
 fn main() {
-    let mut jayce = jayce::Tokenizer::new();
+    let mut jayce = Tokenizer::new();
     jayce.add("newline", r"^\n");
     jayce.add("whitespace", r"^\s+");
     jayce.add("name", r"^[a-zA-Z_]+");
@@ -8,7 +10,7 @@ fn main() {
 
     let source = "Excalibur = 5000$";
 
-    while let Some(token) = jayce.eat(source) {
+    while let TokenizerResult::Token(token) = jayce.next(source) {
         println!("{:?}", token);
     }
 }

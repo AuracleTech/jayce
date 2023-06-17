@@ -1,6 +1,8 @@
+use jayce::{Tokenizer, TokenizerResult};
+
 #[test]
 fn multiline_example() {
-    let mut jayce = jayce::Tokenizer::new();
+    let mut jayce = Tokenizer::new();
     jayce.add("newline", r"^\n");
     jayce.add("whitespace", r"^\s+");
     jayce.add("keyword", r"^let");
@@ -23,17 +25,22 @@ fn multiline_example() {
 
     for expected in truth.drain(..) {
         let (kind, value, line, column) = expected;
-        let token = jayce.eat(source).expect("No token found when expected");
-        assert_eq!(kind, jayce.kinds[token.kind]);
-        assert_eq!(value, &source[token.start..token.end]);
-        assert_eq!(token.line, line);
-        assert_eq!(token.column, column);
+
+        match jayce.next(source) {
+            TokenizerResult::Token(token) => {
+                assert_eq!(kind, jayce.kinds[token.kind]);
+                assert_eq!(value, &source[token.start..token.end]);
+                assert_eq!(token.line, line);
+                assert_eq!(token.column, column);
+            }
+            _ => panic!("Expected token, got something else"),
+        }
     }
 }
 
 #[test]
 fn readme_example() {
-    let mut jayce = jayce::Tokenizer::new();
+    let mut jayce = Tokenizer::new();
     jayce.add("newline", r"^\n");
     jayce.add("whitespace", r"^\s+");
     jayce.add("name", r"^[a-zA-Z_]+");
@@ -52,17 +59,21 @@ fn readme_example() {
 
     for expected in truth.drain(..) {
         let (kind, value, line, column) = expected;
-        let token = jayce.eat(source).expect("No token found when expected");
-        assert_eq!(kind, jayce.kinds[token.kind]);
-        assert_eq!(value, &source[token.start..token.end]);
-        assert_eq!(token.line, line);
-        assert_eq!(token.column, column);
+        match jayce.next(source) {
+            TokenizerResult::Token(token) => {
+                assert_eq!(kind, jayce.kinds[token.kind]);
+                assert_eq!(value, &source[token.start..token.end]);
+                assert_eq!(token.line, line);
+                assert_eq!(token.column, column);
+            }
+            _ => panic!("No token found when expected"),
+        }
     }
 }
 
 #[test]
 #[should_panic]
 fn bad_format_regex() {
-    let mut jayce = jayce::Tokenizer::new();
+    let mut jayce = Tokenizer::new();
     jayce.add("newline", "(? WRONG REGEX");
 }

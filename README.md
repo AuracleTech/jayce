@@ -2,10 +2,12 @@
 
 Jayce is a simple tokenizer
 
-#### Example
+##### Example
 
 ```rust
-let mut jayce = jayce::Tokenizer::new();
+use jayce::{Tokenizer, TokenizerResult};
+
+let mut jayce = Tokenizer::new();
 jayce.add("newline", r"^\n");
 jayce.add("whitespace", r"^\s+");
 jayce.add("name", r"^[a-zA-Z_]+");
@@ -14,7 +16,7 @@ jayce.add("equals", r"^=");
 
 let source = "Excalibur = 5000$";
 
-while let Some(token) = jayce.eat(source) {
+while let TokenizerResult::Token(token) = jayce.next(source) {
     println!("{:?}", token);
 }
 ```
@@ -31,6 +33,8 @@ Token { kind: 3, start: 12, end: 17, line: 1, column: 18 }
 
 ##### Info
 
-Reaching the end of source returns `None`
+`next` returns a `TokenizerResult`
 
-Unknown characters returns a `Token` with `kind` as `None` and `value` of the unknown character
+1. `Token(token)` If a regex matches
+2. `Nothing(message)` When there is zero match
+3. `End` Reaching the source ends
