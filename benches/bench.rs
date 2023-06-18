@@ -48,8 +48,7 @@ fn tokenize() {
             jayce::TokenizerResult::Token(_) => {}
             jayce::TokenizerResult::End => break,
             jayce::TokenizerResult::Nothing(error) => {
-                println!("{:?}", error);
-                break;
+                panic!("{:?}", error);
             }
         }
     }
