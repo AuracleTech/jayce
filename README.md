@@ -7,16 +7,17 @@ Jayce is a simple tokenizer
 ```rust
 use jayce::{Tokenizer, TokenizerResult};
 
-let mut jayce = Tokenizer::new();
-jayce.add("newline", r"^\n");
-jayce.add("whitespace", r"^\s+");
-jayce.add("name", r"^[a-zA-Z_]+");
-jayce.add("price", r"^[0-9]+\$");
-jayce.add("equals", r"^=");
-
 let source = "Excalibur = 5000$";
+let duos = vec![
+    ("newline", r"^\n"),
+    ("whitespace", r"^\s+"),
+    ("name", r"^[a-zA-Z_]+"),
+    ("price", r"^[0-9]+\$"),
+    ("equals", r"^="),
+];
+let mut jayce = Tokenizer::new(source, &duos);
 
-while let TokenizerResult::Token(token) = jayce.next(source) {
+while let TokenizerResult::Token(token) = jayce.next() {
     println!("{:?}", token);
 }
 ```
@@ -24,17 +25,17 @@ while let TokenizerResult::Token(token) = jayce.next(source) {
 ##### Result
 
 ```rust,ignore
-Token { kind: 2, start: 0, end: 9, line: 1, column: 10 }
-Token { kind: 1, start: 9, end: 10, line: 1, column: 11 }
-Token { kind: 4, start: 10, end: 11, line: 1, column: 12 }
-Token { kind: 1, start: 11, end: 12, line: 1, column: 13 }
-Token { kind: 3, start: 12, end: 17, line: 1, column: 18 }
+Token { kind: "name", value: "Excalibur", line: 1, column: 10 }
+Token { kind: "whitespace", value: " ", line: 1, column: 11 }
+Token { kind: "equals", value: "=", line: 1, column: 12 }
+Token { kind: "whitespace", value: " ", line: 1, column: 13 }
+Token { kind: "price", value: "5000$", line: 1, column: 18 }
 ```
 
 ##### Info
 
-`next` returns a `TokenizerResult`
+`next` returns a `TokenizerResult` which can be
 
-1. `Token(token)` If a regex matches
-2. `Nothing(message)` When there is zero match
+1. `Found(token)` If a regex matches
+2. `Unknown(message)` When there is zero match
 3. `End` Reaching the source ends

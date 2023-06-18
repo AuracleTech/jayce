@@ -1,71 +1,67 @@
-pub struct Tokenizer {
-    pub kinds: Vec<String>,
-    regexes: Vec<regex::Regex>,
+use regex::Regex;
+
+pub struct Tokenizer<'a> {
+    source: &'a str,
+    duos: Vec<(&'a str, Regex)>,
     cursor: usize,
-    line: u32,
-    column: u32,
+    line: usize,
+    column: usize,
 }
 
 #[derive(Debug, Clone)]
-pub struct Token {
-    pub kind: usize,
-    pub start: usize,
-    pub end: usize,
-    pub line: u32,
-    pub column: u32,
+pub struct Token<'a> {
+    pub kind: &'a str,
+    pub value: &'a str,
+    pub pos: (usize, usize),
 }
 
-pub enum TokenizerResult {
-    Token(Token),
-    Nothing(String),
+pub enum TokenizerResult<'a> {
+    Found(Token<'a>),
+    Unknown(String),
     End,
 }
 
-impl Tokenizer {
-    pub fn new() -> Self {
+impl<'a> Tokenizer<'a> {
+    pub fn new(source: &'a str, duos: &[(&'a str, &str)]) -> Tokenizer<'a> {
+        let duos = duos
+            .iter()
+            .map(|&(k, v)| (k, Regex::new(v).expect("Invalid regex.")))
+            .collect();
         Self {
-            kinds: vec![],
-            regexes: vec![],
+            source,
+            duos,
             cursor: 0,
             line: 1,
             column: 1,
         }
     }
 
-    pub fn add(&mut self, kind: &str, regex: &str) {
-        self.kinds.push(kind.to_string());
-        self.regexes
-            .push(regex::Regex::new(regex).expect("Invalid regex"));
-    }
-
-    pub fn next(&mut self, source: &str) -> TokenizerResult {
-        if self.cursor >= source.len() {
+    pub fn next(&mut self) -> TokenizerResult<'a> {
+        if self.cursor >= self.source.len() {
             return TokenizerResult::End;
         }
 
-        for (index, regex) in self.regexes.iter().enumerate() {
-            if let Some(matched) = regex.find(&source[self.cursor..]) {
-                let value = matched.as_str();
+        for (kind, regex) in &self.duos {
+            if let Some(result) = regex.find(&self.source[self.cursor..]) {
+                let value = result.as_str();
+                let newlines = value.chars().filter(|&c| c == '\n').count();
 
-                self.cursor += matched.end();
-                let new_line_count = value.matches('\n').count() as u32;
-                self.line += new_line_count;
-                self.column = if new_line_count > 0 {
-                    value.len() as u32
+                self.cursor += value.len();
+                self.line += newlines;
+                self.column = if newlines > 0 {
+                    value.len()
                 } else {
-                    self.column + value.len() as u32
+                    self.column + value.len()
                 };
 
-                return TokenizerResult::Token(Token {
-                    kind: index,
-                    start: self.cursor - matched.end(),
-                    end: self.cursor,
-                    line: self.line,
-                    column: self.column,
+                return TokenizerResult::Found(Token {
+                    kind,
+                    value,
+                    pos: (self.line, self.column),
                 });
             }
         }
 
-        TokenizerResult::Nothing(format!("No token line {} col {}", self.line, self.column))
+        TokenizerResult::Unknown(format!("No token line {} col {}", self.line, self.column))
     }
 }
