@@ -41,8 +41,10 @@ impl<'a> Tokenizer<'a> {
             return TokenizerResult::End;
         }
 
-        for (kind, regex) in &self.duos {
-            if let Some(result) = regex.find(&self.source[self.cursor..]) {
+        let chunk = &self.source[self.cursor..];
+
+        for (kind, regex) in self.duos.iter() {
+            if let Some(result) = regex.find(chunk) {
                 let value = result.as_str();
                 let newlines = value.chars().filter(|&c| c == '\n').count();
 
