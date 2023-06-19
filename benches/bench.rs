@@ -7,9 +7,13 @@ fn jayce_initialization() -> Tokenizer<'static> {
     let duos = [
         ("newline", r"^\n"),
         ("whitespace", r"^\s+"),
+        (
+            "keyword",
+            r"^(let|if|else|fn|struct|enum|match|use|mod|pub|crate|impl|trait|for|while|loop|break|continue|return|as|const|static|type|where|unsafe|extern|ref|self|super|in|move|dyn|abstract|async|await|become|box|do|final|macro|override|priv|typeof|unsized|virtual|yield)",
+        ),
         ("string", r#"^"[^"]*""#),
-        ("char", r"^'[^']*'"),
-        ("keyword", r"^(let|if|else|fn|struct|enum|match)"),
+        ("char", r"^'(.|\\n)'"),
+        ("lifetime", r"^'(?:[a-z_][a-z0-9_]*|static)"),
         ("assign", r"^="),
         ("identifier", r"^[a-zA-Z_][a-zA-Z0-9_]*"),
         ("integer", r"^\d+"),
