@@ -1,6 +1,6 @@
 # jayce
 
-Jayce is a simple tokenizer
+Jayce is a tokenizer 🌌
 
 ##### Example
 
@@ -9,27 +9,29 @@ use jayce::{Tokenizer, TokenizerResult};
 
 let source = "Excalibur = 5000$";
 let duos = vec![
-    ("newline", r"^\n"),
-    ("whitespace", r"^\s+"),
-    ("name", r"^[a-zA-Z_]+"),
     ("price", r"^[0-9]+\$"),
-    ("equals", r"^="),
+    ("operator", r"^="),
+    ("name", r"^[a-zA-Z_]+"),
 ];
-let mut jayce = Tokenizer::new(source, &duos);
+let mut jayce = Tokenizer::new(source, duos);
 
-while let TokenizerResult::Token(token) = jayce.next() {
-    println!("{:?}", token);
+loop {
+    match jayce.next() {
+        TokenizerResult::Found(token) => println!("{:?}", token),
+        TokenizerResult::End => break,
+        TokenizerResult::Error(line, column) => {
+            panic!("Error line {}, column {}.", line, column)
+        }
+    }
 }
 ```
 
 ##### Result
 
 ```rust,ignore
-Token { kind: "name", value: "Excalibur", line: 1, column: 10 }
-Token { kind: "whitespace", value: " ", line: 1, column: 11 }
-Token { kind: "equals", value: "=", line: 1, column: 12 }
-Token { kind: "whitespace", value: " ", line: 1, column: 13 }
-Token { kind: "price", value: "5000$", line: 1, column: 18 }
+Token { kind: "name", value: "Excalibur", pos: (1, 1) }
+Token { kind: "operator", value: "=", pos: (1, 11) }
+Token { kind: "price", value: "5000$", pos: (1, 13) }
 ```
 
 ##### Info
@@ -37,5 +39,9 @@ Token { kind: "price", value: "5000$", line: 1, column: 18 }
 `next` returns a `TokenizerResult` which can be
 
 1. `Found(token)` If a regex matches
-2. `Unknown(message)` When there is zero match
+2. `Error(line, column)` When nothing matches
 3. `End` Reaching the source ends
+
+##### Note
+
+`whitespaces`, `block comments` and `comments` are skipped by default

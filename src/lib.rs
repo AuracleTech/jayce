@@ -1,4 +1,9 @@
+use lazy_static::lazy_static;
 use regex::Regex;
+
+lazy_static! {
+    static ref MERGED: Regex = Regex::new(r"(^\s+)|(^/\*(.|\n)*?\*/)|(^//(.*)\n)").unwrap();
+}
 
 pub struct Tokenizer<'a> {
     source: &'a str,
@@ -17,12 +22,13 @@ pub struct Token<'a> {
 
 pub enum TokenizerResult<'a> {
     Found(Token<'a>),
-    Unknown(String),
+    Error(usize, usize),
     End,
 }
 
 impl<'a> Tokenizer<'a> {
-    pub fn new(source: &'a str, duos: &[(&'a str, &str)]) -> Tokenizer<'a> {
+    #[inline]
+    pub fn new(source: &'a str, duos: Vec<(&'a str, &'a str)>) -> Self {
         let duos = duos
             .iter()
             .map(|&(k, v)| (k, Regex::new(v).expect("Invalid regex.")))
@@ -36,34 +42,56 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
+    #[inline]
+    fn is_eof(&self) -> bool {
+        self.cursor >= self.source.len()
+    }
+
     pub fn next(&mut self) -> TokenizerResult<'a> {
-        if self.cursor >= self.source.len() {
+        if self.is_eof() {
             return TokenizerResult::End;
         }
 
-        let chunk = &self.source[self.cursor..];
+        loop {
+            if let Some(result) = MERGED.find(&self.source[self.cursor..]) {
+                let len = result.len();
+                self.cursor += len;
 
-        for (kind, regex) in self.duos.iter() {
-            if let Some(result) = regex.find(chunk) {
-                let value = result.as_str();
-                let newlines = value.chars().filter(|&c| c == '\n').count();
-
-                self.cursor += value.len();
-                self.line += newlines;
-                self.column = if newlines > 0 {
-                    value.len()
+                let value: &str = result.as_str();
+                let newlines_count = value.chars().filter(|&c| c == '\n').count();
+                if newlines_count > 0 {
+                    self.line += newlines_count;
+                    let distance_newline = value.rfind('\n').unwrap_or(0);
+                    self.column = len - distance_newline;
                 } else {
-                    self.column + value.len()
-                };
+                    self.column += len;
+                }
 
-                return TokenizerResult::Found(Token {
-                    kind,
-                    value,
-                    pos: (self.line, self.column),
-                });
+                if self.is_eof() {
+                    return TokenizerResult::End;
+                }
+            } else {
+                break;
             }
         }
 
-        TokenizerResult::Unknown(format!("No token line {} col {}", self.line, self.column))
+        for (kind, regex) in self.duos.iter() {
+            if let Some(result) = regex.find(&self.source[self.cursor..]) {
+                let len = result.len();
+                self.cursor += len;
+
+                let token = TokenizerResult::Found(Token {
+                    kind,
+                    value: result.as_str(),
+                    pos: (self.line, self.column),
+                });
+
+                self.column += len;
+
+                return token;
+            }
+        }
+
+        TokenizerResult::Error(self.line, self.column)
     }
 }
