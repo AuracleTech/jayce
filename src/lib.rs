@@ -5,7 +5,7 @@ pub mod internal;
 #[macro_export]
 macro_rules! regexify {
     ($regex:expr) => {
-        Regex::new($regex).expect("Invalid regex.")
+        Regex::new($regex).unwrap()
     };
 }
 
