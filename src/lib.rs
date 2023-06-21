@@ -16,7 +16,7 @@ lazy_static! {
 
 pub struct Tokenizer<'a> {
     source: &'a str,
-    duos: &'static [(&'static str, regex::Regex)],
+    duos: &'static [(&'static str, Regex)],
     cursor: usize,
     line: usize,
     column: usize,
