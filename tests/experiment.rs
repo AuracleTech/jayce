@@ -1,47 +1,24 @@
-use jayce::{Token, Tokenizer, TokenizerResult};
+use jayce::{internal::DUOS_RUST, regexify, Token, Tokenizer, TokenizerResult};
+use lazy_static::lazy_static;
+use regex::Regex;
 
-const RUST_DUOS: [(&str, &str); 28] = [
-    (
-        "keyword",
-        r"^(let|if|else|fn|struct|enum|match|use|mod|pub|crate|impl|trait|for|while|loop|break|continue|return|as|const|static|type|where|unsafe|extern|ref|self|super|in|move|dyn|abstract|async|await|become|box|do|final|macro|override|priv|typeof|unsized|virtual|yield)",
-    ),
-    ("string", r#"^"[^"]*""#),
-    ("char", r"^'(.|\\n)'"),
-    ("lifetime", r"^'(?:[a-z_][a-z0-9_]*|static)"),
-    ("operator", r"^(=|\+|-|\*|/|%)"),
-    ("identifier", r"^[a-zA-Z_][a-zA-Z0-9_]*"),
-    ("integer", r"^\d+"),
-    ("float", r"^\d+\.\d+"),
-    ("double_colon", r"^::"),
-    ("semicolon", r"^;"),
-    ("open_brace", r"^\{"),
-    ("close_brace", r"^\}"),
-    ("open_paren", r"^\("),
-    ("close_paren", r"^\)"),
-    ("open_bracket", r"^\["),
-    ("close_bracket", r"^\]"),
-    ("comma", r"^,"),
-    ("hash", r"^#"),
-    ("dot", r"^\."),
-    ("colon", r"^:"),
-    ("pipe", r"^\|"),
-    ("open_angle", r"^<"),
-    ("close_angle", r"^>"),
-    ("caret", r"^\^"),
-    ("temp_borrow", r"^&"),
-    ("temp_mut_borrow", r"^&mut"),
-    ("question", r"^\?"),
-    ("macro_exclamation", r"^!"),
-];
+lazy_static! {
+    static ref DUOS_SINGLELINE: Vec<(&'static str, Regex)> = vec![
+        ("price", regexify!(r"^[0-9]+\$")),
+        ("operator", regexify!(r"^=")),
+        ("name", regexify!(r"^[a-zA-Z_]+")),
+    ];
+    static ref DUOS_MULTILINE: Vec<(&'static str, Regex)> = vec![
+        ("operator", regexify!(r"^=")),
+        ("keyword", regexify!(r"^let")),
+        ("string", regexify!(r#"^"[^"]*""#)),
+        ("identifier", regexify!(r"^[a-z_]+")),
+    ];
+}
 
 #[test]
 fn singleline() {
     let source = "Excalibur = 5000$";
-    let duos = vec![
-        ("price", r"^[0-9]+\$"),
-        ("operator", r"^="),
-        ("name", r"^[a-zA-Z_]+"),
-    ];
 
     const EXPECTED: &[(&str, &str, (usize, usize))] = &[
         ("name", "Excalibur", (1, 1)),
@@ -49,18 +26,12 @@ fn singleline() {
         ("price", "5000$", (1, 13)),
     ];
 
-    verify(source, &duos, EXPECTED);
+    verify(source, &DUOS_SINGLELINE, EXPECTED);
 }
 
 #[test]
 fn multiline() {
     let source = "let dead_cat = \"I mix my cat in a blender\"\nNOTHINGelse";
-    let duos = [
-        ("operator", r"^="),
-        ("keyword", r"^let"),
-        ("string", r#"^"[^"]*""#),
-        ("identifier", r"^[a-z_]+"),
-    ];
 
     const EXPECTED: &[(&str, &str, (usize, usize))] = &[
         ("keyword", "let", (1, 1)),
@@ -69,13 +40,13 @@ fn multiline() {
         ("string", "\"I mix my cat in a blender\"", (1, 16)),
     ];
 
-    verify(source, &duos, EXPECTED);
+    verify(source, &DUOS_MULTILINE, EXPECTED);
 }
 
 #[test]
 fn vulkan_triangle() {
     let source = include_str!("../data/vulkan_triangle.rs");
-    let mut jayce = Tokenizer::new(source, RUST_DUOS.into());
+    let mut jayce = Tokenizer::new(source, &DUOS_RUST);
     let mut tokens: Vec<Token> = Vec::new();
     loop {
         match jayce.next() {
@@ -122,10 +93,14 @@ let f = d + e;"#;
         ("semicolon", ";", (7, 14)),
     ];
 
-    verify(source, &RUST_DUOS, EXPECTED);
+    verify(source, &DUOS_RUST, EXPECTED);
 }
 
-fn verify(source: &str, duos: &[(&str, &str)], expected: &[(&str, &str, (usize, usize))]) {
+fn verify(
+    source: &str,
+    duos: &'static [(&'static str, regex::Regex)],
+    expected: &[(&str, &str, (usize, usize))],
+) {
     let mut jayce = Tokenizer::new(source, duos.into());
 
     for (kind, value, (line, column)) in expected {

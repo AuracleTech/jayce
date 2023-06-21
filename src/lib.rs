@@ -1,13 +1,22 @@
 use lazy_static::lazy_static;
 use regex::Regex;
 
+pub mod internal;
+
+#[macro_export]
+macro_rules! regexify {
+    ($regex:expr) => {
+        Regex::new($regex).expect("Invalid regex.")
+    };
+}
+
 lazy_static! {
     static ref MERGED: Regex = Regex::new(r"(^\s+)|(^/\*(.|\n)*?\*/)|(^//(.*)\n)").unwrap();
 }
 
 pub struct Tokenizer<'a> {
     source: &'a str,
-    duos: Vec<(&'a str, Regex)>,
+    duos: &'static [(&'static str, regex::Regex)],
     cursor: usize,
     line: usize,
     column: usize,
@@ -28,11 +37,7 @@ pub enum TokenizerResult<'a> {
 
 impl<'a> Tokenizer<'a> {
     #[inline]
-    pub fn new(source: &'a str, duos: Vec<(&'a str, &'a str)>) -> Self {
-        let duos = duos
-            .iter()
-            .map(|&(k, v)| (k, Regex::new(v).expect("Invalid regex.")))
-            .collect();
+    pub fn new(source: &'a str, duos: &'static [(&'static str, regex::Regex)]) -> Self {
         Self {
             source,
             duos,

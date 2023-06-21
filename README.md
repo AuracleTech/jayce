@@ -5,22 +5,32 @@ Jayce is a tokenizer 🌌
 ##### Example
 
 ```rust
-use jayce::{Tokenizer, TokenizerResult};
+use jayce::{regexify, Tokenizer, TokenizerResult};
+use lazy_static::lazy_static;
+use regex::Regex;
 
-let source = "Excalibur = 5000$";
-let duos = vec![
-    ("price", r"^[0-9]+\$"),
-    ("operator", r"^="),
-    ("name", r"^[a-zA-Z_]+"),
-];
-let mut jayce = Tokenizer::new(source, duos);
+// Your token kind names and their regexes
+lazy_static! {
+    static ref DUOS: Vec<(&'static str, Regex)> = vec![
+        ("price", regexify!(r"^[0-9]+\$")),
+        ("operator", regexify!(r"^=")),
+        ("name", regexify!(r"^[a-zA-Z_]+")),
+    ];
+}
+// Source to tokenize
+const SOURCE: &str = "Excalibur = 5000$";
 
-loop {
-    match jayce.next() {
-        TokenizerResult::Found(token) => println!("{:?}", token),
-        TokenizerResult::End => break,
-        TokenizerResult::Error(line, column) => {
-            panic!("Error line {}, column {}.", line, column)
+fn main() {
+    let mut jayce = Tokenizer::new(SOURCE, &DUOS);
+
+    // Print all tokens until the end of source
+    loop {
+        match jayce.next() {
+            TokenizerResult::Found(token) => println!("{:?}", token),
+            TokenizerResult::End => break,
+            TokenizerResult::Error(line, column) => {
+                panic!("No match line {}, column {}.", line, column)
+            }
         }
     }
 }
@@ -44,4 +54,14 @@ Token { kind: "price", value: "5000$", pos: (1, 13) }
 
 ##### Note
 
-`whitespaces`, `block comments` and `comments` are skipped by default
+Whitespaces, block comments and comments are skipped by default
+
+##### Performances
+
+Initialization `3.0881 nanoseconds`
+
+> `-99.999%` faster than version 4.0.1
+
+Tokenization of [vulkan-triangle](https://github.com/vulkano-rs/vulkano/blob/master/examples/src/bin/triangle.rs) for `2.2010 nanoseconds`
+
+> `-7.6013%` faster than version 4.0.1
