@@ -2,8 +2,10 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use jayce::{internal::DUOS_RUST, Tokenizer, TokenizerResult};
 
-fn jayce_initialization(source: &str) -> Tokenizer {
-    Tokenizer::new(source, &DUOS_RUST)
+const SOURCE: &str = include_str!("../data/vulkan_triangle.rs");
+
+fn jayce_initialization() -> Tokenizer<'static> {
+    Tokenizer::new(SOURCE, &DUOS_RUST)
 }
 
 fn jayce_tokenize(jayce: &mut Tokenizer) {
@@ -19,13 +21,11 @@ fn jayce_tokenize(jayce: &mut Tokenizer) {
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
-    let source = include_str!("../data/vulkan_triangle.rs");
-
     c.bench_function("jayce_initialization", |b| {
-        b.iter(|| jayce_initialization(black_box(source)))
+        b.iter(|| jayce_initialization())
     });
 
-    let mut tokenizer = jayce_initialization(source);
+    let mut tokenizer = Tokenizer::new(SOURCE, &DUOS_RUST);
     c.bench_function("jayce_tokenize", |b| {
         b.iter(|| jayce_tokenize(&mut tokenizer))
     });
