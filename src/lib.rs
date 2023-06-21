@@ -37,7 +37,7 @@ pub enum TokenizerResult<'a> {
 
 impl<'a> Tokenizer<'a> {
     #[inline]
-    pub fn new(source: &'a str, duos: &'static [(&'static str, regex::Regex)]) -> Self {
+    pub fn new(source: &'a str, duos: &'static [(&'static str, Regex)]) -> Self {
         Self {
             source,
             duos,
