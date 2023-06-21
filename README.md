@@ -60,8 +60,8 @@ Whitespaces, block comments and comments are skipped by default
 
 Initialization `3.0881 nanoseconds`
 
-> `-99.999%` faster than version 4.0.1
+> `99.999%` faster than version 4.0.1
 
-Tokenization of [vulkan-triangle](https://github.com/vulkano-rs/vulkano/blob/master/examples/src/bin/triangle.rs) for `2.2010 nanoseconds`
+Tokenization of [vulkan-triangle](https://github.com/vulkano-rs/vulkano/blob/master/examples/src/bin/triangle.rs) in `2.2010 nanoseconds`
 
-> `-7.6013%` faster than version 4.0.1
+> `7.6013%` faster than version 4.0.1
