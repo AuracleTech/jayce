@@ -1,8 +1,7 @@
 use super::regexify;
-use lazy_static::lazy_static;
 use regex::Regex;
 
-lazy_static! {
+lazy_static::lazy_static! {
     pub static ref DUOS_RUST: Vec<(&'static str, Regex)> = vec![
         (
             "keyword",

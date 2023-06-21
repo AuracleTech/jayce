@@ -1,9 +1,8 @@
 use jayce::{regexify, Tokenizer, TokenizerResult};
-use lazy_static::lazy_static;
 use regex::Regex;
 
 // Your token kind names and their regexes
-lazy_static! {
+lazy_static::lazy_static! {
     static ref DUOS: Vec<(&'static str, Regex)> = vec![
         ("price", regexify!(r"^[0-9]+\$")),
         ("operator", regexify!(r"^=")),

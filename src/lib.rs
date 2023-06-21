@@ -1,4 +1,3 @@
-use lazy_static::lazy_static;
 use regex::Regex;
 
 pub mod internal;
@@ -10,7 +9,7 @@ macro_rules! regexify {
     };
 }
 
-lazy_static! {
+lazy_static::lazy_static! {
     static ref MERGED: Regex = regexify!(r"(^\s+)|(^/\*(.|\n)*?\*/)|(^//(.*)\n)");
 }
 
