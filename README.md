@@ -59,6 +59,6 @@ Whitespaces, block comments and comments are skipped by default
 
 Initialization in `3.0881 nanoseconds`
 
-Tokenization of [Yuumi Vulkan game engine](https://github.com/vulkano-rs/vulkano/blob/master/examples/src/bin/triangle.rs) in `7.2965 milliseconds`
+Tokenization of [24 747 996](https://github.com/AuracleTech/yuumi) tokens in `7.40 milliseconds`
 
-> `7.6013%` faster than version 4.0.1
+> `420.65%` faster than version 4.0.1
