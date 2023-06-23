@@ -1,6 +1,6 @@
 [package]
 name = "jayce"
-version = "6.0.2"
+version = "6.0.3"
 edition = "2021"
 description = "jayce is a tokenizer 🌌"
 repository = "https://github.com/AuracleTech/jayce"
@@ -13,6 +13,10 @@ regex = "1.8.4"
 
 [dev-dependencies]
 criterion = { version = "0.5.1", features = ["html_reports"] }
+
+[[bench]]
+name = "initialization"
+harness = false
 
 [[bench]]
 name = "tokenize"
