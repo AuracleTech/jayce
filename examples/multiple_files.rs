@@ -21,18 +21,9 @@ fn main() {
         }
     }
 
-    let biggest_filename_size = files
-        .iter()
-        .map(|(filename, _)| filename.len())
-        .max()
-        .unwrap_or_default();
-
     for (filename, source) in files.iter() {
         let mut jayce = Tokenizer::new(&source, &DUOS_RUST);
-
-        let formatted_filename = format!("{:width$}", filename, width = biggest_filename_size);
-        let formatted_count = format!("{:width$}", jayce.tokenize_all().len(), width = 8);
-
-        println!("{}: {}", formatted_filename, formatted_count);
+        let total_tokens = jayce.tokenize_all().len();
+        println!("{} has {} tokens", filename, total_tokens);
     }
 }
