@@ -1,8 +1,6 @@
-#[allow(unused_imports)]
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use jayce::{internal::DUOS_RUST, Tokenizer};
 
-fn criterion_benchmark(c: &mut Criterion) {
+fn main() {
     let current_dir = std::env::current_dir()
         .expect("Unable to get current directory")
         .join("data");
@@ -23,22 +21,18 @@ fn criterion_benchmark(c: &mut Criterion) {
         }
     }
 
-    let mut total = 0;
+    let biggest_filename_size = files
+        .iter()
+        .map(|(filename, _)| filename.len())
+        .max()
+        .unwrap_or_default();
 
-    c.bench_function(
-        "Tokenize Yuumi vulkan game engine",
-        |b: &mut criterion::Bencher<'_>| {
-            b.iter(|| {
-                for (_, source) in files.iter() {
-                    let mut jayce = Tokenizer::new(black_box(&source), black_box(&DUOS_RUST));
-                    total += jayce.tokenize_all().len();
-                }
-            })
-        },
-    );
+    for (filename, source) in files.iter() {
+        let mut jayce = Tokenizer::new(&source, &DUOS_RUST);
 
-    println!("Amount of tokens created : {}", total);
+        let formatted_filename = format!("{:width$}", filename, width = biggest_filename_size);
+        let formatted_count = format!("{:width$}", jayce.tokenize_all().len(), width = 8);
+
+        println!("{}: {}", formatted_filename, formatted_count);
+    }
 }
-
-criterion_group!(benches, criterion_benchmark);
-criterion_main!(benches);

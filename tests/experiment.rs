@@ -1,4 +1,4 @@
-use jayce::{internal::DUOS_RUST, regexify, Token, Tokenizer, TokenizerResult};
+use jayce::{internal::DUOS_RUST, regexify, Tokenizer, TokenizerResult};
 use lazy_static::lazy_static;
 use regex::Regex;
 
@@ -111,25 +111,4 @@ fn verify(
             _ => panic!("No token found when expected"),
         }
     }
-}
-
-/*
- * Vulkan triangle
- */
-
-const VULKAN_SOURCE: &str = include_str!("../data/vulkan_triangle.rs");
-#[test]
-fn vulkan_triangle() {
-    let mut jayce = Tokenizer::new(VULKAN_SOURCE, &DUOS_RUST);
-    let mut tokens: Vec<Token> = Vec::new();
-    loop {
-        match jayce.next() {
-            TokenizerResult::Found(token) => tokens.push(token),
-            TokenizerResult::End => break,
-            TokenizerResult::Error(line, column) => {
-                panic!("Error at line {}, column {}.", line, column)
-            }
-        }
-    }
-    println!("Tokens in vulkan triangle: {}", tokens.len());
 }

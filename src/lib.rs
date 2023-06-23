@@ -98,4 +98,18 @@ impl<'a> Tokenizer<'a> {
 
         TokenizerResult::Error(self.line, self.column)
     }
+
+    pub fn tokenize_all(&mut self) -> Vec<Token<'a>> {
+        let mut tokens: Vec<Token<'a>> = Vec::new();
+        loop {
+            match self.next() {
+                TokenizerResult::Found(token) => tokens.push(token),
+                TokenizerResult::End => break,
+                TokenizerResult::Error(line, column) => {
+                    panic!("Error at line {}, column {}.", line, column)
+                }
+            }
+        }
+        tokens
+    }
 }
