@@ -65,7 +65,8 @@ let b;
 /* This is a multiline \r\ncomment
 that spans multiple lines */
 let d = 5; // And This should be ignored `\r\n`\nlol
-let f = d + e;"#;
+let f = d + e;
+// this is a comment"#;
 const EXPECTED_COMMENTS: &[(&str, &str, (usize, usize))] = &[
     ("keyword", "let", (2, 1)),
     ("identifier", "a", (2, 5)),
@@ -109,6 +110,16 @@ fn verify(
                 assert_eq!(column, &token.pos.1);
             }
             _ => panic!("No token found when expected"),
+        }
+    }
+
+    match jayce.next() {
+        TokenizerResult::End => {}
+        TokenizerResult::Found(token) => {
+            panic!("Unexpected token found: {:?}", token)
+        }
+        TokenizerResult::Error(line, column) => {
+            panic!("Error line {} column {}", line, column);
         }
     }
 }

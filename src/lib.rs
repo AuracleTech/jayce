@@ -10,7 +10,7 @@ macro_rules! regexify {
 }
 
 lazy_static::lazy_static! {
-    static ref MERGED: Regex = regexify!(r"(^\s+)|(^/\*(.|\n)*?\*/)|(^//(.*)\n)");
+    static ref MERGED: Regex = regexify!(r"(^\s+)|(^//(.*)\n?)|(^/\*(.|\n)*?\*/)");
 }
 
 pub struct Tokenizer<'a> {
