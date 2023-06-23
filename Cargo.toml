@@ -1,12 +1,13 @@
 [package]
 name = "jayce"
-version = "6.0.1"
+version = "6.0.2"
 edition = "2021"
 description = "jayce is a tokenizer 🌌"
 repository = "https://github.com/AuracleTech/jayce"
 license = "MIT"
 
 [dependencies]
+bytecount = "0.6.3"
 lazy_static = "1.4.0"
 regex = "1.8.4"
 
@@ -20,3 +21,7 @@ harness = false
 [[bench]]
 name = "tokenize"
 harness = false
+
+[features]
+runtime-dispatch-simd = ["bytecount/runtime-dispatch-simd"]
+generic-simd = ["bytecount/generic-simd"]

@@ -62,7 +62,7 @@ impl<'a> Tokenizer<'a> {
                 self.cursor += len;
 
                 let value: &str = result.as_str();
-                let newlines_count = value.chars().filter(|&c| c == '\n').count();
+                let newlines_count = bytecount::count(value.as_bytes(), b'\n');
                 if newlines_count > 0 {
                     self.line += newlines_count;
                     let distance_newline = value.rfind('\n').unwrap_or(0);
