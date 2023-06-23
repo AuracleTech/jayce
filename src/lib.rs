@@ -100,7 +100,7 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn tokenize_all(&mut self) -> Vec<Token<'a>> {
-        let mut tokens: Vec<Token<'a>> = Vec::new();
+        let mut tokens = Vec::new();
         loop {
             match self.next() {
                 TokenizerResult::Found(token) => tokens.push(token),
