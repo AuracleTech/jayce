@@ -45,20 +45,22 @@ Token { kind: "price", value: "5000$", pos: (1, 13) }
 
 ##### Info
 
-`next` returns a `TokenizerResult` which can be
+`peek` only returns a `TokenizerResult`
+
+`next` returns a `TokenizerResult` and advances the source cursor
+
+`TokenizerResult` can be
 
 1. `Found(token)` If a regex matches
 2. `Error(line, column)` When nothing matches
 3. `End` Reaching the source ends
 
-##### Note
-
-Whitespaces, block comments and comments are skipped by default
-
 ##### Performances
 
-Initialization in `3.0881 nanoseconds`
+Whitespaces, block comments and comments are skipped by default for performance reasons
 
-Tokenization of [24 747 996](https://github.com/AuracleTech/yuumi) tokens in `7.40 milliseconds`
+Initialization in `1.87 nanoseconds`
 
-> `420.65%` faster than version 4.0.1
+Tokenization of [49 516 428](https://github.com/AuracleTech/yuumi) tokens in `3.69 milliseconds`
+
+> version 6.0.4 is `420.65%` faster than version 4.0.1

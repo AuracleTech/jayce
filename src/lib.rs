@@ -21,13 +21,14 @@ pub struct Tokenizer<'a> {
     column: usize,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Token<'a> {
     pub kind: &'a str,
     pub value: &'a str,
     pub pos: (usize, usize),
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum TokenizerResult<'a> {
     Found(Token<'a>),
     Error(usize, usize),
@@ -97,6 +98,17 @@ impl<'a> Tokenizer<'a> {
         }
 
         TokenizerResult::Error(self.line, self.column)
+    }
+
+    pub fn peek(&mut self) -> TokenizerResult<'a> {
+        let cursor = self.cursor;
+        let line = self.line;
+        let column = self.column;
+        let result = self.next();
+        self.cursor = cursor;
+        self.line = line;
+        self.column = column;
+        result
     }
 
     pub fn tokenize_all(&mut self) -> Vec<Token<'a>> {

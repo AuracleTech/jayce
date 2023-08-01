@@ -101,8 +101,11 @@ fn verify(
     expected: &[(&str, &str, (usize, usize))],
 ) {
     let mut jayce = Tokenizer::new(source, duos.into());
+    let mut peeked = jayce.peek();
     for (kind, value, (line, column)) in expected {
-        match jayce.next() {
+        let next = jayce.next();
+        assert_eq!(peeked, next);
+        match next {
             TokenizerResult::Found(token) => {
                 assert_eq!(kind, &token.kind);
                 assert_eq!(value, &token.value);
@@ -111,10 +114,13 @@ fn verify(
             }
             _ => panic!("No token found when expected"),
         }
+        peeked = jayce.peek();
     }
 
     match jayce.next() {
-        TokenizerResult::End => {}
+        TokenizerResult::End => {
+            assert_eq!(peeked, TokenizerResult::End);
+        }
         TokenizerResult::Found(token) => {
             panic!("Unexpected token found: {:?}", token)
         }
