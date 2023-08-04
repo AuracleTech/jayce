@@ -53,11 +53,11 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn next(&mut self) -> TokenizerResult<'a> {
-        if self.is_eof() {
-            return TokenizerResult::End;
-        }
-
         loop {
+            if self.is_eof() {
+                return TokenizerResult::End;
+            }
+
             if let Some(result) = MERGED.find(&self.source[self.cursor..]) {
                 let len = result.len();
                 self.cursor += len;
@@ -70,10 +70,6 @@ impl<'a> Tokenizer<'a> {
                     self.column = len - distance_newline;
                 } else {
                     self.column += len;
-                }
-
-                if self.is_eof() {
-                    return TokenizerResult::End;
                 }
             } else {
                 break;
