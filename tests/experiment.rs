@@ -66,7 +66,14 @@ let b;
 that spans multiple lines */
 let d = 5; // And This should be ignored `\r\n`\nlol
 let f = d + e;
-// this is a comment"#;
+// this is a comment
+
+/**///yes
+
+/* */
+/**/
+
+"#;
 const EXPECTED_COMMENTS: &[(&str, &str, (usize, usize))] = &[
     ("keyword", "let", (2, 1)),
     ("identifier", "a", (2, 5)),

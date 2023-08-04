@@ -54,10 +54,6 @@ impl<'a> Tokenizer<'a> {
 
     pub fn next(&mut self) -> TokenizerResult<'a> {
         loop {
-            if self.is_eof() {
-                return TokenizerResult::End;
-            }
-
             if let Some(result) = MERGED.find(&self.source[self.cursor..]) {
                 let len = result.len();
                 self.cursor += len;
@@ -74,6 +70,10 @@ impl<'a> Tokenizer<'a> {
             } else {
                 break;
             }
+        }
+
+        if self.is_eof() {
+            return TokenizerResult::End;
         }
 
         for (kind, regex) in self.duos.iter() {
