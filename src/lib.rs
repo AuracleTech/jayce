@@ -1,17 +1,10 @@
+pub mod internal;
 use regex::Regex;
 
-pub mod internal;
-
 #[macro_export]
-macro_rules! regexify {
-    ($regex:expr) => {
-        Regex::new($regex).unwrap()
-    };
-}
+macro_rules! regexify (($regex:expr) => { Regex::new($regex).unwrap() };);
 
-lazy_static::lazy_static! {
-    static ref MERGED: Regex = regexify!(r"(^\s+)|(^//(.*)\n?)|(^/\*(.|\n)*?\*/)");
-}
+lazy_static::lazy_static!(static ref SKIPPED: Regex = regexify!(r"(^\s+)|(^//(.*)\n?)|(^/\*(.|\n)*?\*/)"););
 
 pub struct Tokenizer<'a> {
     source: &'a str,
@@ -23,16 +16,9 @@ pub struct Tokenizer<'a> {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Token<'a> {
-    pub kind: &'a str,
+    pub kind: &'static str,
     pub value: &'a str,
     pub pos: (usize, usize),
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum TokenizerResult<'a> {
-    Found(Token<'a>),
-    Error(usize, usize),
-    End,
 }
 
 impl<'a> Tokenizer<'a> {
@@ -47,14 +33,9 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    #[inline]
-    fn is_eof(&self) -> bool {
-        self.cursor >= self.source.len()
-    }
-
-    pub fn next(&mut self) -> TokenizerResult<'a> {
+    pub fn next(&mut self) -> Result<Option<Token<'a>>, Box<dyn std::error::Error>> {
         loop {
-            if let Some(result) = MERGED.find(&self.source[self.cursor..]) {
+            if let Some(result) = SKIPPED.find(&self.source[self.cursor..]) {
                 let len = result.len();
                 self.cursor += len;
 
@@ -62,8 +43,7 @@ impl<'a> Tokenizer<'a> {
                 let newlines_count = bytecount::count(value.as_bytes(), b'\n');
                 if newlines_count > 0 {
                     self.line += newlines_count;
-                    let distance_newline = value.rfind('\n').unwrap_or(0);
-                    self.column = len - distance_newline;
+                    self.column = len - value.rfind('\n').unwrap_or(0);
                 } else {
                     self.column += len;
                 }
@@ -72,52 +52,38 @@ impl<'a> Tokenizer<'a> {
             }
         }
 
-        if self.is_eof() {
-            return TokenizerResult::End;
+        if self.cursor >= self.source.len() {
+            return Ok(None);
         }
 
         for (kind, regex) in self.duos.iter() {
             if let Some(result) = regex.find(&self.source[self.cursor..]) {
-                let len = result.len();
-                self.cursor += len;
-
-                let token = TokenizerResult::Found(Token {
+                let token = Token {
                     kind,
                     value: result.as_str(),
                     pos: (self.line, self.column),
-                });
+                };
 
+                let len = result.len();
+                self.cursor += len;
                 self.column += len;
 
-                return token;
+                return Ok(Some(token));
             }
         }
 
-        TokenizerResult::Error(self.line, self.column)
+        Err(format!(
+            "Failed to match at line {}, column {}.",
+            self.line, self.column
+        ))?
     }
 
-    pub fn peek(&mut self) -> TokenizerResult<'a> {
-        let cursor = self.cursor;
-        let line = self.line;
-        let column = self.column;
-        let result = self.next();
-        self.cursor = cursor;
-        self.line = line;
-        self.column = column;
-        result
-    }
-
-    pub fn tokenize_all(&mut self) -> Vec<Token<'a>> {
+    pub fn tokenize_all(&mut self) -> Result<Vec<Token<'a>>, Box<dyn std::error::Error>> {
         let mut tokens = Vec::new();
-        loop {
-            match self.next() {
-                TokenizerResult::Found(token) => tokens.push(token),
-                TokenizerResult::End => break,
-                TokenizerResult::Error(line, column) => {
-                    panic!("Error at line {}, column {}.", line, column)
-                }
-            }
+        while let Some(token) = self.next()? {
+            tokens.push(token);
         }
-        tokens
+
+        Ok(tokens)
     }
 }

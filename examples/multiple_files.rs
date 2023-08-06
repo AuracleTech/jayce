@@ -1,6 +1,6 @@
 use jayce::{internal::DUOS_RUST, Tokenizer};
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let current_dir = std::env::current_dir()
         .expect("Unable to get current directory")
         .join("data");
@@ -21,9 +21,19 @@ fn main() {
         }
     }
 
+    let mut total_token_count = 0;
+
     for (filename, source) in files.iter() {
-        let mut jayce = Tokenizer::new(&source, &DUOS_RUST);
-        let total_tokens = jayce.tokenize_all().len();
-        println!("{} has {} tokens", filename, total_tokens);
+        let mut tokenizer = Tokenizer::new(&source, &DUOS_RUST);
+
+        let tokens_for_file = tokenizer.tokenize_all()?.len();
+
+        total_token_count += tokens_for_file;
+
+        println!("File {} has {} tokens", filename, tokens_for_file);
     }
+
+    println!("Total token count : {}", total_token_count);
+
+    Ok(())
 }
