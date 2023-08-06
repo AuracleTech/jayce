@@ -34,21 +34,17 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn next(&mut self) -> Result<Option<Token<'a>>, Box<dyn std::error::Error>> {
-        loop {
-            if let Some(result) = SKIPPED.find(&self.source[self.cursor..]) {
-                let len = result.len();
-                self.cursor += len;
+        while let Some(result) = SKIPPED.find(&self.source[self.cursor..]) {
+            let len = result.len();
+            self.cursor += len;
 
-                let value: &str = result.as_str();
-                let newlines_count = bytecount::count(value.as_bytes(), b'\n');
-                if newlines_count > 0 {
-                    self.line += newlines_count;
-                    self.column = len - value.rfind('\n').unwrap_or(0);
-                } else {
-                    self.column += len;
-                }
+            let value: &str = result.as_str();
+            let newlines_count = bytecount::count(value.as_bytes(), b'\n');
+            if newlines_count > 0 {
+                self.line += newlines_count;
+                self.column = len - value.rfind('\n').unwrap_or(0);
             } else {
-                break;
+                self.column += len;
             }
         }
 
