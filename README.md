@@ -41,13 +41,16 @@ Token { kind: "semicolon", value: ";", pos: (1, 18) }
 
 ##### Info
 
-functions available are `next` and `tokenize_all`
-
-the `Result` has 3 variants
+`next` returns a `Result` with 3 possible values
 
 1. `Ok(Some(token))` If a match is found
 2. `Ok(None)` Reaching the source ends
-3. `Err(error)` When nothing matches
+3. `Err(error)` When an error occurs
+
+`tokenize_all` returns a `Result` with 2 possible values
+
+1. `Ok(tokens)` If all tokens are found
+2. `Err(error)` When an error occurs
 
 ##### Note
 
