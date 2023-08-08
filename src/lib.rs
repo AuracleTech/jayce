@@ -6,24 +6,24 @@ macro_rules! regexify (($regex:expr) => { Regex::new($regex).unwrap() };);
 
 lazy_static::lazy_static!(static ref SKIPPED: Regex = regexify!(r"(^\s+)|(^//(.*)\n?)|(^/\*(.|\n)*?\*/)"););
 
-pub struct Tokenizer<'a> {
+pub struct Tokenizer<'a, T> {
     source: &'a str,
-    duos: &'static [(&'static str, Regex)],
+    duos: &'a [(T, Regex)],
     cursor: usize,
     line: usize,
     column: usize,
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Token<'a> {
-    pub kind: &'static str,
+pub struct Token<'a, T> {
+    pub kind: &'a T,
     pub value: &'a str,
     pub pos: (usize, usize),
 }
 
-impl<'a> Tokenizer<'a> {
+impl<'a, T> Tokenizer<'a, T> {
     #[inline]
-    pub fn new(source: &'a str, duos: &'static [(&'static str, Regex)]) -> Self {
+    pub fn new(source: &'a str, duos: &'static [(T, Regex)]) -> Self {
         Self {
             source,
             duos,
@@ -33,7 +33,7 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    pub fn next(&mut self) -> Result<Option<Token<'a>>, Box<dyn std::error::Error>> {
+    pub fn next(&mut self) -> Result<Option<Token<'a, T>>, Box<dyn std::error::Error>> {
         while let Some(result) = SKIPPED.find(&self.source[self.cursor..]) {
             let len = result.len();
             self.cursor += len;
@@ -74,7 +74,7 @@ impl<'a> Tokenizer<'a> {
         ))?
     }
 
-    pub fn tokenize_all(&mut self) -> Result<Vec<Token<'a>>, Box<dyn std::error::Error>> {
+    pub fn tokenize_all(&mut self) -> Result<Vec<Token<'a, T>>, Box<dyn std::error::Error>> {
         let mut tokens = Vec::new();
         while let Some(token) = self.next()? {
             tokens.push(token);
