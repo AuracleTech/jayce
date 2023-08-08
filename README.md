@@ -60,6 +60,8 @@ whitespaces, comments and block comments are skipped for performance reasons
 
 initialization in `1.83 nanoseconds`
 
-tokenization of [19 979](https://github.com/AuracleTech/yuumi) tokens in `3.69 milliseconds`
+tokenization of [19 979](https://github.com/AuracleTech/yuumi) tokens in `3.59 milliseconds`
 
-> version 6.0.4 is `420.65%` faster than version 4.0.1
+> `6.0.4` is ~ `421%` faster than version `4.0.1`
+
+> `8.0.0` is ~ `5%` faster than version `7.0.1`
