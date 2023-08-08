@@ -5,17 +5,17 @@ jayce is a tokenizer 🌌
 ##### Example
 
 ```rust
-use jayce::{regexify, Tokenizer};
+use jayce::{duos, Tokenizer};
 use regex::Regex;
 
 const SOURCE: &str = "Excalibur = 5000$; // Your custom lang";
 
 lazy_static::lazy_static! (
-    static ref DUOS: Vec<(&'static str, Regex)> = vec![
-        ("price", regexify!(r"^[0-9]+\$")),
-        ("semicolon", regexify!(r"^;")),
-        ("operator", regexify!(r"^=")),
-        ("name", regexify!(r"^[a-zA-Z_]+")),
+    static ref DUOS: Vec<(&'static str, Regex)> = duos![
+        "price", r"^[0-9]+\$",
+        "semicolon", r"^;",
+        "operator", r"^=",
+        "name", r"^[a-zA-Z_]+"
     ];
 );
 
@@ -41,16 +41,16 @@ Token { kind: "semicolon", value: ";", pos: (1, 18) }
 
 ##### Info
 
-`next` returns a `Result` with 3 possible values
+`next` possible `Result`
 
-1. `Ok(Some(token))` If a match is found
-2. `Ok(None)` Reaching the source ends
-3. `Err(error)` When an error occurs
+1. `Ok(Some(token))` Match is found
+2. `Ok(None)` End of source
+3. `Err(error)` An error occurs
 
-`tokenize_all` returns a `Result` with 2 possible values
+`tokenize_all` possible `Result`
 
-1. `Ok(tokens)` If all tokens are found
-2. `Err(error)` When an error occurs
+1. `Ok(Vec<Tokens>)` Tokens are found
+2. `Err(error)` An error occurs
 
 ##### Note
 
@@ -60,7 +60,7 @@ whitespaces, comments and block comments are skipped for performance reasons
 
 initialization in `1.83 nanoseconds`
 
-tokenization of [19 979](https://github.com/AuracleTech/yuumi) tokens in `3.59 milliseconds`
+tokenization of [19 979](https://github.com/AuracleTech/yuumi) tokens in `3.5 milliseconds`
 
 > `6.0.4` is ~ `421%` faster than version `4.0.1`
 

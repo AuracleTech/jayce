@@ -1,6 +1,7 @@
 use jayce::{
+    duos,
     internal::{Duos, DUOS_RUST},
-    regexify, Tokenizer,
+    Tokenizer,
 };
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -10,10 +11,10 @@ use regex::Regex;
 const SOURCE_SINGLELINE: &str = "Excalibur = 5000$";
 
 lazy_static! {
-    static ref DUOS_SINGLELINE: Vec<(&'static str, Regex)> = vec![
-        ("price", regexify!(r"^[0-9]+\$")),
-        ("operator", regexify!(r"^=")),
-        ("name", regexify!(r"^[a-zA-Z_]+")),
+    static ref DUOS_SINGLELINE: Vec<(&'static str, Regex)> = duos![
+        "price", r"^[0-9]+\$",  //
+        "operator", r"^=",      //
+        "name", r"^[a-zA-Z_]+"  //
     ];
 }
 
@@ -35,11 +36,11 @@ pancake_icecream = yes
 very_multiline"#;
 
 lazy_static! {
-    static ref DUOS_MULTILINE: Vec<(&'static str, Regex)> = vec![
-        ("operator", regexify!(r"^=")),
-        ("keyword", regexify!(r"^let")),
-        ("string", regexify!(r#"^"[^"]*""#)),
-        ("identifier", regexify!(r"^[a-z_]+")),
+    static ref DUOS_MULTILINE: Vec<(&'static str, Regex)> = duos![
+        "operator", r"^=",         //
+        "keyword", r"^let",        //
+        "string", r#"^"[^"]*""#,   //
+        "identifier", r"^[a-z_]+"  //
     ];
 }
 

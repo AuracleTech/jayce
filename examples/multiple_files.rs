@@ -28,9 +28,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let tokens_for_file = tokenizer.tokenize_all()?.len();
 
-        total_token_count += tokens_for_file;
-
         println!("File {} has {} tokens", filename, tokens_for_file);
+
+        total_token_count += tokens_for_file;
     }
 
     println!("Total token count : {}", total_token_count);

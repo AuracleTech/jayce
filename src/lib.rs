@@ -2,9 +2,9 @@ pub mod internal;
 use regex::Regex;
 
 #[macro_export]
-macro_rules! regexify (($regex:expr) => { Regex::new($regex).unwrap() };);
+macro_rules! duos (($($kind:expr, $pattern:expr),*) => { vec![ $( ($kind, Regex::new($pattern).unwrap()) ),* ] };);
 
-lazy_static::lazy_static!(static ref SKIPPED: Regex = regexify!(r"(^\s+)|(^//(.*)\n?)|(^/\*(.|\n)*?\*/)"););
+lazy_static::lazy_static!(static ref SKIPPED: Regex = Regex::new(r"(^\s+)|(^//(.*)\n?)|(^/\*(.|\n)*?\*/)").unwrap(););
 
 pub struct Tokenizer<'a, T> {
     source: &'a str,
