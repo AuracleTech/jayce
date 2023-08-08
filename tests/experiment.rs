@@ -135,7 +135,7 @@ fn verify(
             Ok(None) => panic!("No token found when expected"),
             Err(err) => panic!("Error while tokenizing: {}", err),
         };
-        assert_eq!(kind, &next.kind);
+        assert_eq!(kind, next.kind);
         assert_eq!(value, &next.value);
         assert_eq!(line, &next.pos.0);
         assert_eq!(column, &next.pos.1);
