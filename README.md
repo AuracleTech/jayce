@@ -64,4 +64,4 @@ tokenization of [19 979](https://github.com/AuracleTech/yuumi) tokens in `3.59 m
 
 > `6.0.4` is ~ `421%` faster than version `4.0.1`
 
-> `8.0.0` is ~ `5%` faster than version `7.0.1`
+> `7.0.2` is ~ `5%` faster than version `7.0.1`
