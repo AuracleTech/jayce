@@ -32,8 +32,8 @@ pub enum Duos {
     MacroExclamation,
 }
 
-fn generic() -> Vec<(Duos, Regex)> {
-    vec![
+lazy_static::lazy_static! (
+pub static ref DUOS_RUST: Vec<(Duos, Regex)> =  vec![
         (
             Duos::Keyword,
             regexify!(
@@ -69,9 +69,5 @@ fn generic() -> Vec<(Duos, Regex)> {
         (Duos::TempBorrow, regexify!(r"^&")),
         (Duos::Question, regexify!(r"^\?")),
         (Duos::MacroExclamation, regexify!(r"^!")),
-    ]
-}
-
-lazy_static::lazy_static! (
-pub static ref DUOS_RUST: Vec<(Duos, Regex)> = generic();
+    ];
 );
