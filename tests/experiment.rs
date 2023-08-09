@@ -6,6 +6,35 @@ use jayce::{
 use lazy_static::lazy_static;
 use regex::Regex;
 
+// Custom duos
+
+#[derive(Debug, PartialEq)]
+enum CustomDuos {
+    Name,
+    Operator,
+    Price,
+}
+
+const SOURCE_CUSTOMDUOS: &str = "Excalibur = 5000$";
+
+lazy_static! {
+    static ref DUOS_CUSTOMDUOS: Vec<(CustomDuos, Regex)> = duos![
+        CustomDuos::Price, r"^[0-9]+\$",  //
+        CustomDuos::Operator, r"^=",      //
+        CustomDuos::Name, r"^[a-zA-Z_]+"  //
+    ];
+}
+
+const EXPECTED_CUSTOMDUOS: &[(CustomDuos, &str, (usize, usize))] = &[
+    (CustomDuos::Name, "Excalibur", (1, 1)),
+    (CustomDuos::Operator, "=", (1, 11)),
+    (CustomDuos::Price, "5000$", (1, 13)),
+];
+#[test]
+fn custom_duos() {
+    verify(SOURCE_CUSTOMDUOS, &DUOS_CUSTOMDUOS, EXPECTED_CUSTOMDUOS);
+}
+
 // Single line
 
 const SOURCE_SINGLELINE: &str = "Excalibur = 5000$";
