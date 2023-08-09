@@ -1,6 +1,6 @@
 [package]
 name = "jayce"
-version = "8.0.0"
+version = "8.1.0"
 edition = "2021"
 description = "jayce is a tokenizer 🌌"
 repository = "https://github.com/AuracleTech/jayce"
