@@ -2,7 +2,7 @@ pub mod internal;
 use regex::Regex;
 
 #[macro_export]
-macro_rules! duos (($($kind:expr, $pattern:expr),*) => { vec![ $( ($kind, Regex::new($pattern).unwrap()) ),* ] };);
+macro_rules! duos(($($kind:expr, $pattern:expr),*) => { vec![ $( ($kind, Regex::new($pattern).unwrap()) ),* ] };);
 
 lazy_static::lazy_static!(static ref SKIPPED: Regex = Regex::new(r"(^\s+)|(^//(.*)\n?)|(^/\*(.|\n)*?\*/)").unwrap(););
 
