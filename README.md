@@ -8,10 +8,15 @@ jayce is a tokenizer 🌌
 use jayce::{duos, Tokenizer};
 use regex::Regex;
 
-const SOURCE: &str = "Excalibur = 5000$; // Your custom lang";
+const SOURCE: &str = "Excalibur = 5000$; // Your own language!";
 
 lazy_static::lazy_static! (
     static ref DUOS: Vec<(&'static str, Regex)> = duos![
+        "whitespace", r"^[^\S\n]+",
+        "comment_line", r"^//(.*)",
+        "comment_block", r"^/\*(.|\n)*?\*/",
+        "newline", r"^\n",
+
         "price", r"^[0-9]+\$",
         "semicolon", r"^;",
         "operator", r"^=",
@@ -34,9 +39,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ```rust,ignore
 Token { kind: "name", value: "Excalibur", pos: (1, 1) }
+Token { kind: "whitespace", value: " ", pos: (1, 10) }
 Token { kind: "operator", value: "=", pos: (1, 11) }
+Token { kind: "whitespace", value: " ", pos: (1, 12) }
 Token { kind: "price", value: "5000$", pos: (1, 13) }
 Token { kind: "semicolon", value: ";", pos: (1, 18) }
+Token { kind: "whitespace", value: " ", pos: (1, 19) }
+Token { kind: "comment_line", value: "// Your own language!", pos: (1, 20) }
 ```
 
 ##### Info
@@ -52,16 +61,12 @@ Token { kind: "semicolon", value: ";", pos: (1, 18) }
 1. `Ok(Vec<Tokens>)` Tokens are found
 2. `Err(error)` An error occurs
 
-##### Note
-
-whitespaces, comments and block comments are skipped for performance reasons
-
 ##### Performances
 
 initialization in `1.83 nanoseconds`
 
-tokenization of [19 979](https://github.com/AuracleTech/yuumi) tokens in `3.5 milliseconds`
+tokenization of [29 639](https://github.com/AuracleTech/yuumi) tokens in `4.6 milliseconds`
 
-> `6.0.4` is ~ `421%` faster than version `4.0.1`
+> `7.0.2` is `442%` faster than version `4.0.1` from making everything precompiled
 
-> `7.0.2` is ~ `5%` faster than version `7.0.1`
+> `9.0.0` is `30%` slower than version `8.1.0` to support custom whitespaces & comments

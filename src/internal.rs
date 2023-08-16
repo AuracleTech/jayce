@@ -2,6 +2,11 @@ use regex::Regex;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Duos {
+    Whitespace,
+    CommentLine,
+    CommentBlock,
+    Newline,
+
     Keyword,
     String,
     Char,
@@ -33,6 +38,11 @@ pub enum Duos {
 
 lazy_static::lazy_static! {
 pub static ref DUOS_RUST: Vec<(Duos, Regex)> =  crate::duos!(
+Duos::Whitespace, r"^[^\S\n]+",
+Duos::CommentLine, r"^//(.*)",
+Duos::CommentBlock, r"^/\*(.|\n)*?\*/",
+Duos::Newline, r"^\n",
+
 Duos::Keyword, r"^(mut|let|if|else|fn|struct|enum|match|use|mod|pub|crate|impl|trait|for|while|loop|break|continue|return|as|const|static|type|where|unsafe|extern|ref|self|super|in|move|dyn|abstract|async|await|become|box|do|final|macro|override|priv|typeof|unsized|virtual|yield)\b",
 Duos::String, r#"^"[^"]*""#,
 Duos::Char, r"^'(.|\\n)'",
