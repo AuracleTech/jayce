@@ -32,7 +32,7 @@ fn criterion_benchmark(c: &mut Criterion) {
                 total = 0;
 
                 for (_, source) in files.iter() {
-                    let mut tokenizer = Tokenizer::new(black_box(&source), black_box(&DUOS_RUST));
+                    let mut tokenizer = Tokenizer::new(black_box(source), black_box(&DUOS_RUST));
 
                     let subtotal_tokens = match tokenizer.tokenize_all() {
                         Ok(tokens) => tokens.len(),

@@ -245,7 +245,7 @@ fn verify<T>(source: &str, duos: &'static [(T, Regex)], expected: &[(T, &str, (u
 where
     T: PartialEq + std::fmt::Debug,
 {
-    let mut tokenizer = Tokenizer::new(source, duos.into());
+    let mut tokenizer = Tokenizer::new(source, duos);
 
     for (kind, value, (line, column)) in expected {
         let next = match tokenizer.next() {
