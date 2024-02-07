@@ -248,7 +248,7 @@ where
     let mut tokenizer = Tokenizer::new(source, duos);
 
     for (kind, value, (line, column)) in expected {
-        let next = match tokenizer.next() {
+        let token = match tokenizer.next() {
             Ok(Some(token)) => token,
             Ok(None) => panic!("No token found when expected"),
             Err(err) => panic!("Error while tokenizing: {}", err),
@@ -257,13 +257,13 @@ where
         println!(
             "Expected {:?} got {:?}",
             (kind, value, (line, column)),
-            next,
+            token,
         );
 
-        assert_eq!(kind, next.kind);
-        assert_eq!(value, &next.value);
-        assert_eq!(line, &next.pos.0);
-        assert_eq!(column, &next.pos.1);
+        assert_eq!(kind, token.kind);
+        assert_eq!(value, &token.value);
+        assert_eq!(line, &token.pos.0);
+        assert_eq!(column, &token.pos.1);
     }
 
     match tokenizer.next() {
