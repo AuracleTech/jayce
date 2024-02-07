@@ -63,10 +63,18 @@ Token { kind: "comment_line", value: "// Your own language!", pos: (1, 20) }
 
 ##### Performances
 
-initialization in `1.83 nanoseconds`
+initialization in `1.83 nanoseconds` and tokenization of [29 639](https://github.com/AuracleTech/yuumi) tokens in `3.85 milliseconds`
 
-tokenization of [29 639](https://github.com/AuracleTech/yuumi) tokens in `4.6 milliseconds`
+SIMD acceleration enabled by default, modify `Cargo.toml` as follows to disable
+
+```toml
+jayce = { version = "X.X.X", default-features = false }
+```
+
+##### Changelog
 
 > `7.0.2` is `442%` faster than version `4.0.1` from making everything precompiled
 
 > `9.0.0` is `30%` slower than version `8.1.0` to support custom whitespaces & comments
+
+> `9.0.2` is `5%` faster than version `9.0.1` by enabling SIMD acceleration by default

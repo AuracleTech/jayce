@@ -7,7 +7,7 @@ repository = "https://github.com/AuracleTech/jayce"
 license = "MIT"
 
 [dependencies]
-bytecount = "0.6.3"
+bytecount = { version = "0.6.3", features = ["runtime-dispatch-simd"] }
 lazy_static = "1.4.0"
 regex = "1.8.4"
 
@@ -23,5 +23,6 @@ name = "tokenize"
 harness = false
 
 [features]
+default = ["runtime-dispatch-simd"]
 runtime-dispatch-simd = ["bytecount/runtime-dispatch-simd"]
 generic-simd = ["bytecount/generic-simd"]
