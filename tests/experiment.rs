@@ -8,7 +8,7 @@ use regex::Regex;
 
 // Custom duos
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 enum CustomDuos {
     Whitespace,
     CommentLine,
@@ -241,6 +241,7 @@ fn unexpected() {
 
 // Verify function
 
+#[cfg(not(feature = "serialization"))]
 fn verify<T>(source: &str, duos: &'static [(T, Regex)], expected: &[(T, &str, (usize, usize))])
 where
     T: PartialEq + std::fmt::Debug,
@@ -271,4 +272,98 @@ where
         Ok(None) => {}
         Err(err) => panic!("Error while tokenizing: {}", err),
     };
+}
+
+#[cfg(feature = "serialization")]
+fn verify<T>(source: &str, duos: &'static [(T, Regex)], expected: &[(T, &str, (usize, usize))])
+where
+    T: PartialEq + std::fmt::Debug + Clone,
+{
+    let mut tokenizer = Tokenizer::new(source, duos);
+
+    for (kind, value, (line, column)) in expected {
+        let token = match tokenizer.next() {
+            Ok(Some(token)) => token,
+            Ok(None) => panic!("No token found when expected"),
+            Err(err) => panic!("Error while tokenizing: {}", err),
+        };
+
+        println!(
+            "Expected {:?} got {:?}",
+            (kind, value, (line, column)),
+            token,
+        );
+
+        assert_eq!(kind, &token.kind);
+        assert_eq!(value, &token.value);
+        assert_eq!(line, &token.pos.0);
+        assert_eq!(column, &token.pos.1);
+    }
+
+    match tokenizer.next() {
+        Ok(Some(token)) => panic!("Unexpected token: {:?}", token),
+        Ok(None) => {}
+        Err(err) => panic!("Error while tokenizing: {}", err),
+    };
+}
+
+#[cfg(feature = "serialization")]
+#[test]
+fn serialization_one() {
+    use jayce::Token;
+    let token = Token {
+        kind: "example_kind",
+        value: "example_value".to_string(),
+        pos: (1, 2),
+    };
+
+    let serialized = serde_json::to_string(&token).unwrap();
+    let deserialized: Token<&str> = serde_json::from_str(&serialized).unwrap();
+
+    assert_eq!(token, deserialized);
+}
+
+#[cfg(feature = "serialization")]
+const SOURCE_SERIALIZATION: &str = r"use crate::{
+    app::AppData,
+    camera::Camera,
+    model::{self, Model},
+    texture::{self, Texture},
+};
+use anyhow::{anyhow, Result};
+use std::collections::HashMap;
+use vulkanalia::prelude::v1_0::*;";
+
+#[cfg(feature = "serialization")]
+#[test]
+fn serialization_collection() {
+    let mut tokenizer = Tokenizer::new(SOURCE_SERIALIZATION, &DUOS_RUST);
+
+    let mut tokens = Vec::new();
+    while let Some(token) = tokenizer.next().unwrap() {
+        tokens.push(token);
+    }
+
+    let serialized = serde_json::to_string(&tokens).unwrap();
+    let mut deserialized: Vec<jayce::Token<&str>> = serde_json::from_str(&serialized).unwrap();
+
+    while let Some(token) = tokenizer.next().unwrap() {
+        let deser_token = deserialized.pop().unwrap();
+        let token_kind = match deser_token.kind {
+            "CommentLine" => Duos::CommentLine,
+            "Newline" => Duos::Newline,
+            "Keyword" => Duos::Keyword,
+            "Whitespace" => Duos::Whitespace,
+            "Operator" => Duos::Operator,
+            "Identifier" => Duos::Identifier,
+            "Integer" => Duos::Integer,
+            "Semicolon" => Duos::Semicolon,
+            "CommentBlock" => Duos::CommentBlock,
+            _ => panic!("Unexpected token kind"),
+        };
+        assert_eq!(token.value, deser_token.value);
+        assert_eq!(token.pos.0, deser_token.pos.0);
+        assert_eq!(token.pos.1, deser_token.pos.1);
+        assert_eq!(token.kind, token_kind);
+    }
 }

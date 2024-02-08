@@ -1,6 +1,9 @@
 use regex::Regex;
+#[cfg(feature = "serialization")]
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
+#[cfg_attr(feature = "serialization", derive(Serialize, Deserialize))]
 pub enum Duos {
     Whitespace,
     CommentLine,

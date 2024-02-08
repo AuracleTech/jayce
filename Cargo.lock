@@ -241,12 +241,14 @@ checksum = "b1a46d1a171d865aa5f83f92695765caa047a9b4cbae2cbf37dbd613a793fd4c"
 
 [[package]]
 name = "jayce"
-version = "9.0.2"
+version = "9.1.0"
 dependencies = [
  "bytecount",
  "criterion",
  "lazy_static",
  "regex",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
