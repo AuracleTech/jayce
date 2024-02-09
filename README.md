@@ -66,14 +66,13 @@ Token { kind: "comment_line", value: "// Your own language!", pos: (1, 20) }
 tokenization of [29 639](https://github.com/AuracleTech/yuumi) rust language tokens
 
 - `3.8 milliseconds` with referenced tokens and serialization disabled
-
 - `5.0 milliseconds` with owned tokens and serialization available
 
 ##### Features
 
-`serialization`
-`generic-simd`
-`runtime-dispatch-simd` enabled by default, to disable modify `Cargo.toml` as follows
+- `serialization`
+- `generic-simd`
+- `runtime-dispatch-simd` enabled by default, to disable modify `Cargo.toml` as follows
 
 ```toml
 jayce = { version = "X.X.X", default-features = false }
