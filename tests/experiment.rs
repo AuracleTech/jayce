@@ -339,10 +339,7 @@ use vulkanalia::prelude::v1_0::*;";
 fn serialization_collection() {
     let mut tokenizer = Tokenizer::new(SOURCE_SERIALIZATION, &DUOS_RUST);
 
-    let mut tokens = Vec::new();
-    while let Some(token) = tokenizer.next().unwrap() {
-        tokens.push(token);
-    }
+    let tokens = tokenizer.tokenize_all().unwrap();
 
     let serialized = serde_json::to_string(&tokens).unwrap();
     let mut deserialized: Vec<jayce::Token<&str>> = serde_json::from_str(&serialized).unwrap();
