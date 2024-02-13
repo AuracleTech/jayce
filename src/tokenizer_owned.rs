@@ -8,6 +8,7 @@ pub struct Token<T> {
     pub value: String,
     pub pos: (usize, usize),
 }
+
 impl<'a, T> Tokenizer<'a, T>
 where
     T: Clone,
