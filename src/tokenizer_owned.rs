@@ -1,6 +1,12 @@
-use crate::Tokenizer;
-use regex::Regex;
+use crate::{Duo, Tokenizer};
 use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum SeekResult<T> {
+    Match(Token<T>),
+    Skipped,
+    End,
+}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Token<T> {
@@ -14,7 +20,7 @@ where
     T: Clone,
 {
     #[inline]
-    pub fn new(source: &'a str, duos: &'static [(T, Regex)]) -> Self {
+    pub fn new(source: &'a str, duos: &'a [Duo<T>]) -> Self {
         Self {
             source,
             duos,
@@ -24,19 +30,23 @@ where
         }
     }
 
-    pub fn next(&mut self) -> Result<Option<Token<T>>, Box<dyn std::error::Error>> {
+    pub fn seek(&mut self) -> Result<SeekResult<T>, Box<dyn std::error::Error>> {
         if self.cursor >= self.source.len() {
-            return Ok(None);
+            return Ok(SeekResult::End);
         }
 
-        for (kind, regex) in self.duos.iter() {
-            if let Some(result) = regex.find(&self.source[self.cursor..]) {
+        for duo in self.duos.iter() {
+            if let Some(result) = duo.regex.find(&self.source[self.cursor..]) {
                 let value: &str = result.as_str();
 
-                let token = Token {
-                    kind: kind.clone(),
-                    value: value.to_string(),
-                    pos: (self.line, self.column),
+                let token = if duo.preserve {
+                    SeekResult::Match(Token {
+                        kind: duo.kind.clone(),
+                        value: value.to_string(),
+                        pos: (self.line, self.column),
+                    })
+                } else {
+                    SeekResult::Skipped
                 };
 
                 let len = result.len();
@@ -49,7 +59,7 @@ where
                     self.column += len;
                 }
 
-                return Ok(Some(token));
+                return Ok(token);
             }
         }
 
@@ -61,8 +71,12 @@ where
 
     pub fn tokenize_all(&mut self) -> Result<Vec<Token<T>>, Box<dyn std::error::Error>> {
         let mut tokens = Vec::new();
-        while let Some(token) = self.next()? {
-            tokens.push(token);
+        while let Ok(tokenize_result) = self.seek() {
+            match tokenize_result {
+                SeekResult::Match(token) => tokens.push(token),
+                SeekResult::Skipped => continue,
+                SeekResult::End => break,
+            }
         }
 
         Ok(tokens)

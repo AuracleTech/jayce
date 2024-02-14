@@ -1,7 +1,7 @@
 use crate::{Duo, Tokenizer};
 
 pub enum SeekResult<'a, T> {
-    Token(Token<'a, T>),
+    Match(Token<'a, T>),
     Skipped,
     End,
 }
@@ -35,7 +35,7 @@ impl<'a, T> Tokenizer<'a, T> {
                 let value: &str = result.as_str();
 
                 let token = if duo.preserve {
-                    SeekResult::Token(Token {
+                    SeekResult::Match(Token {
                         kind: &duo.kind,
                         value,
                         pos: (self.line, self.column),
@@ -68,7 +68,7 @@ impl<'a, T> Tokenizer<'a, T> {
         let mut tokens = Vec::new();
         while let Ok(tokenize_result) = self.seek() {
             match tokenize_result {
-                SeekResult::Token(token) => tokens.push(token),
+                SeekResult::Match(token) => tokens.push(token),
                 SeekResult::Skipped => continue,
                 SeekResult::End => break,
             }
