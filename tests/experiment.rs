@@ -247,13 +247,16 @@ fn verify<T>(source: &str, duos: &Vec<Duo<T>>, expected: &[(T, &str, (usize, usi
 where
     T: PartialEq + std::fmt::Debug,
 {
+    use jayce::SeekResult;
+
     let mut tokenizer = Tokenizer::new(source, duos);
 
     for (kind, value, (line, column)) in expected {
-        let token = match tokenizer.next() {
-            Ok(Some(token)) => token,
-            Ok(None) => panic!("No token found when expected"),
-            Err(err) => panic!("Error while tokenizing: {}", err),
+        let result = tokenizer.seek().unwrap();
+        let token = match result {
+            SeekResult::Token(token) => token,
+            SeekResult::Skipped => continue,
+            SeekResult::End => panic!("No token found when expected"),
         };
 
         println!(
@@ -268,10 +271,12 @@ where
         assert_eq!(column, &token.pos.1);
     }
 
-    match tokenizer.next() {
-        Ok(Some(token)) => panic!("Unexpected token: {:?}", token),
-        Ok(None) => {}
-        Err(err) => panic!("Error while tokenizing: {}", err),
+    let result = tokenizer.seek().unwrap();
+
+    match result {
+        SeekResult::Token(token) => panic!("Unexpected token: {:?}", token),
+        SeekResult::Skipped => panic!("Unexpected skipped token"),
+        SeekResult::End => {}
     };
 }
 

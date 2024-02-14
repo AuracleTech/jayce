@@ -1,5 +1,11 @@
 use crate::{Duo, Tokenizer};
 
+pub enum SeekResult<'a, T> {
+    Token(Token<'a, T>),
+    Skipped,
+    End,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Token<'a, T> {
     pub kind: &'a T,
@@ -19,26 +25,23 @@ impl<'a, T> Tokenizer<'a, T> {
         }
     }
 
-    pub fn next(&mut self) -> Result<Option<Token<'a, T>>, Box<dyn std::error::Error>> {
+    pub fn seek(&mut self) -> Result<SeekResult<'a, T>, Box<dyn std::error::Error>> {
         if self.cursor >= self.source.len() {
-            return Ok(None);
+            return Ok(SeekResult::End);
         }
 
         for duo in self.duos.iter() {
             if let Some(result) = duo.regex.find(&self.source[self.cursor..]) {
-                // if !duo.preserve {
-                //     // FIX
-                //     if result.start() != 0 {
-                //         continue;
-                //     }
-                // }
-
                 let value: &str = result.as_str();
 
-                let token = Token {
-                    kind: &duo.kind,
-                    value,
-                    pos: (self.line, self.column),
+                let token = if duo.preserve {
+                    SeekResult::Token(Token {
+                        kind: &duo.kind,
+                        value,
+                        pos: (self.line, self.column),
+                    })
+                } else {
+                    SeekResult::Skipped
                 };
 
                 let len = result.len();
@@ -51,7 +54,7 @@ impl<'a, T> Tokenizer<'a, T> {
                     self.column += len;
                 }
 
-                return Ok(Some(token));
+                return Ok(token);
             }
         }
 
@@ -63,8 +66,12 @@ impl<'a, T> Tokenizer<'a, T> {
 
     pub fn tokenize_all(&mut self) -> Result<Vec<Token<'a, T>>, Box<dyn std::error::Error>> {
         let mut tokens = Vec::new();
-        while let Some(token) = self.next()? {
-            tokens.push(token);
+        while let Ok(tokenize_result) = self.seek() {
+            match tokenize_result {
+                SeekResult::Token(token) => tokens.push(token),
+                SeekResult::Skipped => continue,
+                SeekResult::End => break,
+            }
         }
 
         Ok(tokens)

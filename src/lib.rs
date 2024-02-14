@@ -4,7 +4,7 @@ use regex::Regex;
 pub struct Duo<T> {
     kind: T,
     regex: Regex,
-    _preserve: bool,
+    preserve: bool,
 }
 
 impl<T> Duo<T> {
@@ -13,7 +13,7 @@ impl<T> Duo<T> {
         Self {
             kind,
             regex,
-            _preserve,
+            preserve: _preserve,
         }
     }
 }
@@ -33,5 +33,6 @@ pub use tokenizer_owned::Token;
 
 #[cfg(not(feature = "serialization"))]
 mod tokenizer_ref;
+pub use tokenizer_ref::SeekResult;
 #[cfg(not(feature = "serialization"))]
 pub use tokenizer_ref::Token;
