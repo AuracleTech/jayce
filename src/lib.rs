@@ -1,11 +1,26 @@
 pub mod internal;
+use regex::Regex;
 
-#[macro_export]
-macro_rules! duos(($($kind:expr, $pattern:expr),*) => { vec![ $( ($kind, Regex::new($pattern).unwrap()) ),* ] };);
+pub struct Duo<T> {
+    kind: T,
+    regex: Regex,
+    _preserve: bool,
+}
+
+impl<T> Duo<T> {
+    pub fn new(kind: T, regex: &str, _preserve: bool) -> Self {
+        let regex = Regex::new(regex).unwrap();
+        Self {
+            kind,
+            regex,
+            _preserve,
+        }
+    }
+}
 
 pub struct Tokenizer<'a, T> {
     source: &'a str,
-    duos: &'a [(T, regex::Regex)],
+    duos: &'a [Duo<T>],
     cursor: usize,
     line: usize,
     column: usize,

@@ -1,15 +1,13 @@
 use jayce::{
-    duos,
-    internal::{Duos, DUOS_RUST},
-    Tokenizer,
+    internal::{KindsRust, DUOS_RUST},
+    Duo, Tokenizer,
 };
 use lazy_static::lazy_static;
-use regex::Regex;
 
 // Custom duos
 
 #[derive(Debug, PartialEq, Clone)]
-enum CustomDuos {
+enum CustomKinds {
     Whitespace,
     CommentLine,
     CommentBlock,
@@ -20,48 +18,47 @@ enum CustomDuos {
     Price,
 }
 
-const SOURCE_CUSTOMDUOS: &str = "Excalibur = 5000$";
+const SOURCE_CUSTOMKINDS: &str = "Excalibur = 5000$";
 
 lazy_static! {
-    static ref DUOS_CUSTOMDUOS: Vec<(CustomDuos, Regex)> = duos![
-        CustomDuos::Whitespace, r"^\s+",
-        CustomDuos::CommentLine, r"^//(.*)",
-        CustomDuos::CommentBlock, r"^/\*(.|\n)*?\*/",
-        CustomDuos::Newline, r"^\n",
-
-        CustomDuos::Price, r"^[0-9]+\$",  //
-        CustomDuos::Operator, r"^=",      //
-        CustomDuos::Name, r"^[a-zA-Z_]+"  //
+    static ref DUOS_CUSTOMKINDS: Vec<Duo<CustomKinds>> = vec![
+        Duo::new(CustomKinds::Whitespace, r"^\s+", false),
+        Duo::new(CustomKinds::CommentLine, r"^//(.*)", false),
+        Duo::new(CustomKinds::CommentBlock, r"^/\*(.|\n)*?\*/", false),
+        Duo::new(CustomKinds::Newline, r"^\n", false),
+        Duo::new(CustomKinds::Price, r"^[0-9]+\$", true),
+        Duo::new(CustomKinds::Operator, r"^=", true),
+        Duo::new(CustomKinds::Name, r"^[a-zA-Z_]+", true)
     ];
 }
 
-const EXPECTED_CUSTOMDUOS: &[(CustomDuos, &str, (usize, usize))] = &[
-    (CustomDuos::Name, "Excalibur", (1, 1)),
-    (CustomDuos::Whitespace, " ", (1, 10)),
-    (CustomDuos::Operator, "=", (1, 11)),
-    (CustomDuos::Whitespace, " ", (1, 12)),
-    (CustomDuos::Price, "5000$", (1, 13)),
+const EXPECTED_CUSTOMDUOS: &[(CustomKinds, &str, (usize, usize))] = &[
+    (CustomKinds::Name, "Excalibur", (1, 1)),
+    (CustomKinds::Whitespace, " ", (1, 10)),
+    (CustomKinds::Operator, "=", (1, 11)),
+    (CustomKinds::Whitespace, " ", (1, 12)),
+    (CustomKinds::Price, "5000$", (1, 13)),
 ];
 
 #[test]
 fn custom_duos() {
-    verify(SOURCE_CUSTOMDUOS, &DUOS_CUSTOMDUOS, EXPECTED_CUSTOMDUOS);
+    verify(SOURCE_CUSTOMKINDS, &DUOS_CUSTOMKINDS, EXPECTED_CUSTOMDUOS);
 }
 
 // Single line
 
 const SOURCE_SINGLELINE: &str = "Excalibur = 5000$";
 
-lazy_static! {
-    static ref DUOS_SINGLELINE: Vec<(&'static str, Regex)> = duos![
-        "whitespace", r"^\s+",
-        "comment_line", r"^//(.*)",
-        "comment_block", r"^/\*(.|\n)*?\*/",
-        "newline", r"^\n",
+lazy_static::lazy_static! {
+    static ref DUOS_SINGLELINE: Vec<Duo<&'static str>> = vec![
+        Duo::new("whitespace", r"^\s+", false),
+        Duo::new("comment_line", r"^//(.*)", false),
+        Duo::new("comment_block", r"^/\*(.|\n)*?\*/", false),
+        Duo::new("newline", r"^\n", false),
 
-        "price", r"^[0-9]+\$",  //
-        "operator", r"^=",      //
-        "name", r"^[a-zA-Z_]+"  //
+        Duo::new("price", r"^[0-9]+\$", true),
+        Duo::new("operator", r"^=", true),
+        Duo::new("name", r"^[a-zA-Z_]+", true)
     ];
 }
 
@@ -87,17 +84,17 @@ very_multiline
 
 "#;
 
-lazy_static! {
-    static ref DUOS_MULTILINE: Vec<(&'static str, Regex)> = duos![
-        "whitespace", r"^[^\S\n]+",
-        "comment_line", r"^//(.*)",
-        "comment_block", r"^/\*(.|\n)*?\*/",
-        "newline", r"^\n",
+lazy_static::lazy_static! {
+    static ref DUOS_MULTILINE: Vec<Duo<&'static str>> = vec![
+        Duo::new("whitespace", r"^[^\S\n]+", false),
+        Duo::new("comment_line", r"^//(.*)", false),
+        Duo::new("comment_block", r"^/\*(.|\n)*?\*/", false),
+        Duo::new("newline", r"^\n", false),
 
-        "operator", r"^=",         //
-        "keyword", r"^let",        //
-        "string", r#"^"[^"]*""#,   //
-        "identifier", r"^[a-z_]+"  //
+        Duo::new("operator", r"^=", true),
+        Duo::new("keyword", r"^let", true),
+        Duo::new("string", r#"^"[^"]*""#, true),
+        Duo::new("identifier", r"^[a-z_]+", true)
     ];
 }
 
@@ -145,73 +142,77 @@ let f = d + e;
 
 // \n
 "#;
-const EXPECTED_COMMENTS: &[(Duos, &str, (usize, usize))] = &[
-    (Duos::CommentLine, "// This is a comment", (1, 1)),
-    (Duos::Newline, "\n", (1, 21)),
-    (Duos::Keyword, "let", (2, 1)),
-    (Duos::Whitespace, " ", (2, 4)),
-    (Duos::Identifier, "a", (2, 5)),
-    (Duos::Whitespace, " ", (2, 6)),
-    (Duos::Operator, "=", (2, 7)),
-    (Duos::Whitespace, " ", (2, 8)),
-    (Duos::Integer, "5", (2, 9)),
-    (Duos::Semicolon, ";", (2, 10)),
-    (Duos::Whitespace, " ", (2, 11)),
-    (Duos::CommentLine, "// This is another comment", (2, 12)),
-    (Duos::Newline, "\n", (2, 38)),
-    (Duos::Keyword, "let", (3, 1)),
-    (Duos::Whitespace, " ", (3, 4)),
-    (Duos::Identifier, "b", (3, 5)),
-    (Duos::Semicolon, ";", (3, 6)),
-    (Duos::Newline, "\n", (3, 7)),
+const EXPECTED_COMMENTS: &[(KindsRust, &str, (usize, usize))] = &[
+    (KindsRust::CommentLine, "// This is a comment", (1, 1)),
+    (KindsRust::Newline, "\n", (1, 21)),
+    (KindsRust::Keyword, "let", (2, 1)),
+    (KindsRust::Whitespace, " ", (2, 4)),
+    (KindsRust::Identifier, "a", (2, 5)),
+    (KindsRust::Whitespace, " ", (2, 6)),
+    (KindsRust::Operator, "=", (2, 7)),
+    (KindsRust::Whitespace, " ", (2, 8)),
+    (KindsRust::Integer, "5", (2, 9)),
+    (KindsRust::Semicolon, ";", (2, 10)),
+    (KindsRust::Whitespace, " ", (2, 11)),
     (
-        Duos::CommentBlock,
+        KindsRust::CommentLine,
+        "// This is another comment",
+        (2, 12),
+    ),
+    (KindsRust::Newline, "\n", (2, 38)),
+    (KindsRust::Keyword, "let", (3, 1)),
+    (KindsRust::Whitespace, " ", (3, 4)),
+    (KindsRust::Identifier, "b", (3, 5)),
+    (KindsRust::Semicolon, ";", (3, 6)),
+    (KindsRust::Newline, "\n", (3, 7)),
+    (
+        KindsRust::CommentBlock,
         "/* This is a multiline \\r\\ncomment\nthat spans multiple lines */",
         (4, 1),
     ),
-    (Duos::Newline, "\n", (5, 29)),
-    (Duos::Keyword, "let", (6, 1)),
-    (Duos::Whitespace, " ", (6, 4)),
-    (Duos::Identifier, "d", (6, 5)),
-    (Duos::Whitespace, " ", (6, 6)),
-    (Duos::Operator, "=", (6, 7)),
-    (Duos::Whitespace, " ", (6, 8)),
-    (Duos::Integer, "8", (6, 9)),
-    (Duos::Semicolon, ";", (6, 10)),
-    (Duos::Whitespace, " ", (6, 11)),
+    (KindsRust::Newline, "\n", (5, 29)),
+    (KindsRust::Keyword, "let", (6, 1)),
+    (KindsRust::Whitespace, " ", (6, 4)),
+    (KindsRust::Identifier, "d", (6, 5)),
+    (KindsRust::Whitespace, " ", (6, 6)),
+    (KindsRust::Operator, "=", (6, 7)),
+    (KindsRust::Whitespace, " ", (6, 8)),
+    (KindsRust::Integer, "8", (6, 9)),
+    (KindsRust::Semicolon, ";", (6, 10)),
+    (KindsRust::Whitespace, " ", (6, 11)),
     (
-        Duos::CommentLine,
+        KindsRust::CommentLine,
         "// And This should be ignored `\\r\\n`\\nlol",
         (6, 12),
     ),
-    (Duos::Newline, "\n", (6, 53)),
-    (Duos::Keyword, "let", (7, 1)),
-    (Duos::Whitespace, " ", (7, 4)),
-    (Duos::Identifier, "f", (7, 5)),
-    (Duos::Whitespace, " ", (7, 6)),
-    (Duos::Operator, "=", (7, 7)),
-    (Duos::Whitespace, " ", (7, 8)),
-    (Duos::Identifier, "d", (7, 9)),
-    (Duos::Whitespace, " ", (7, 10)),
-    (Duos::Operator, "+", (7, 11)),
-    (Duos::Whitespace, " ", (7, 12)),
-    (Duos::Identifier, "e", (7, 13)),
-    (Duos::Semicolon, ";", (7, 14)),
-    (Duos::Newline, "\n", (7, 15)),
-    (Duos::CommentLine, "// this is a comment", (8, 1)),
-    (Duos::Newline, "\n", (8, 21)),
-    (Duos::Newline, "\n", (9, 1)),
-    (Duos::CommentBlock, "/**/", (10, 1)),
-    (Duos::CommentLine, "//yes", (10, 5)),
-    (Duos::Newline, "\n", (10, 10)),
-    (Duos::Newline, "\n", (11, 1)),
-    (Duos::CommentBlock, "/* */", (12, 1)),
-    (Duos::Newline, "\n", (12, 6)),
-    (Duos::CommentBlock, "/**/", (13, 1)),
-    (Duos::Newline, "\n", (13, 5)),
-    (Duos::Newline, "\n", (14, 1)),
-    (Duos::CommentLine, "// \\n", (15, 1)),
-    (Duos::Newline, "\n", (15, 6)),
+    (KindsRust::Newline, "\n", (6, 53)),
+    (KindsRust::Keyword, "let", (7, 1)),
+    (KindsRust::Whitespace, " ", (7, 4)),
+    (KindsRust::Identifier, "f", (7, 5)),
+    (KindsRust::Whitespace, " ", (7, 6)),
+    (KindsRust::Operator, "=", (7, 7)),
+    (KindsRust::Whitespace, " ", (7, 8)),
+    (KindsRust::Identifier, "d", (7, 9)),
+    (KindsRust::Whitespace, " ", (7, 10)),
+    (KindsRust::Operator, "+", (7, 11)),
+    (KindsRust::Whitespace, " ", (7, 12)),
+    (KindsRust::Identifier, "e", (7, 13)),
+    (KindsRust::Semicolon, ";", (7, 14)),
+    (KindsRust::Newline, "\n", (7, 15)),
+    (KindsRust::CommentLine, "// this is a comment", (8, 1)),
+    (KindsRust::Newline, "\n", (8, 21)),
+    (KindsRust::Newline, "\n", (9, 1)),
+    (KindsRust::CommentBlock, "/**/", (10, 1)),
+    (KindsRust::CommentLine, "//yes", (10, 5)),
+    (KindsRust::Newline, "\n", (10, 10)),
+    (KindsRust::Newline, "\n", (11, 1)),
+    (KindsRust::CommentBlock, "/* */", (12, 1)),
+    (KindsRust::Newline, "\n", (12, 6)),
+    (KindsRust::CommentBlock, "/**/", (13, 1)),
+    (KindsRust::Newline, "\n", (13, 5)),
+    (KindsRust::Newline, "\n", (14, 1)),
+    (KindsRust::CommentLine, "// \\n", (15, 1)),
+    (KindsRust::Newline, "\n", (15, 6)),
 ];
 
 #[test]
@@ -242,7 +243,7 @@ fn unexpected() {
 // Verify function
 
 #[cfg(not(feature = "serialization"))]
-fn verify<T>(source: &str, duos: &'static [(T, Regex)], expected: &[(T, &str, (usize, usize))])
+fn verify<T>(source: &str, duos: &Vec<Duo<T>>, expected: &[(T, &str, (usize, usize))])
 where
     T: PartialEq + std::fmt::Debug,
 {
@@ -347,15 +348,15 @@ fn serialization_collection() {
     while let Some(token) = tokenizer.next().unwrap() {
         let deser_token = deserialized.pop().unwrap();
         let token_kind = match deser_token.kind {
-            "CommentLine" => Duos::CommentLine,
-            "Newline" => Duos::Newline,
-            "Keyword" => Duos::Keyword,
-            "Whitespace" => Duos::Whitespace,
-            "Operator" => Duos::Operator,
-            "Identifier" => Duos::Identifier,
-            "Integer" => Duos::Integer,
-            "Semicolon" => Duos::Semicolon,
-            "CommentBlock" => Duos::CommentBlock,
+            "CommentLine" => KindsRust::CommentLine,
+            "Newline" => KindsRust::Newline,
+            "Keyword" => KindsRust::Keyword,
+            "Whitespace" => KindsRust::Whitespace,
+            "Operator" => KindsRust::Operator,
+            "Identifier" => KindsRust::Identifier,
+            "Integer" => KindsRust::Integer,
+            "Semicolon" => KindsRust::Semicolon,
+            "CommentBlock" => KindsRust::CommentBlock,
             _ => panic!("Unexpected token kind"),
         };
         assert_eq!(token.value, deser_token.value);

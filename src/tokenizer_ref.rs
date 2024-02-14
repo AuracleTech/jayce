@@ -1,5 +1,4 @@
-use crate::Tokenizer;
-use regex::Regex;
+use crate::{Duo, Tokenizer};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Token<'a, T> {
@@ -10,7 +9,7 @@ pub struct Token<'a, T> {
 
 impl<'a, T> Tokenizer<'a, T> {
     #[inline]
-    pub fn new(source: &'a str, duos: &'static [(T, Regex)]) -> Self {
+    pub fn new(source: &'a str, duos: &'a [Duo<T>]) -> Self {
         Self {
             source,
             duos,
@@ -25,12 +24,19 @@ impl<'a, T> Tokenizer<'a, T> {
             return Ok(None);
         }
 
-        for (kind, regex) in self.duos.iter() {
-            if let Some(result) = regex.find(&self.source[self.cursor..]) {
+        for duo in self.duos.iter() {
+            if let Some(result) = duo.regex.find(&self.source[self.cursor..]) {
+                // if !duo.preserve {
+                //     // FIX
+                //     if result.start() != 0 {
+                //         continue;
+                //     }
+                // }
+
                 let value: &str = result.as_str();
 
                 let token = Token {
-                    kind,
+                    kind: &duo.kind,
                     value,
                     pos: (self.line, self.column),
                 };
