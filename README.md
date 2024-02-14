@@ -11,7 +11,6 @@ const SOURCE: &str = "Excalibur = 5000$; // Your own language!";
 
 lazy_static::lazy_static! {
     static ref DUOS: Vec<Duo<&'static str>> = vec![
-        // Token name, regular expression, and if we preserve the token
         Duo::new("whitespace", r"^[^\S\n]+", false),
         Duo::new("commentLine", r"^//(.*)", false),
         Duo::new("commentBlock", r"^/\*(.|\n)*?\*/", false),
@@ -52,19 +51,19 @@ Token { kind: "semicolon", value: ";", pos: (1, 18) }
 
 `tokenizer.seek()` returns `Result`
 
-1. `Ok(SeekResult)` Seeking next token is successful
-2. `Err(error)` An error occurs
+1. `Ok(SeekResult)` seeking next token is successful
+2. `Err(error)` an error occurs
 
 `SeekResult`
 
-3. `Match(Token<T>)` Match found
-4. `Skipped` Match found but token is not preserved
-5. `End` End of source
+3. `Match(Token<T>)` match found
+4. `Skipped` match found but token is not preserved
+5. `End` end of source
 
 `tokenizer.tokenize_all()` returns `Result`
 
-1. `Ok(Vec<Tokens>)` Tokens are found
-2. `Err(error)` An error occurs
+1. `Ok(Vec<Tokens>)` tokens are found
+2. `Err(error)` an error occurs
 
 ##### Performances
 
