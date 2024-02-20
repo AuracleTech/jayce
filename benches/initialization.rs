@@ -6,7 +6,7 @@ const EMPTY_SOURCE: &str = "";
 
 fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("initialization", |b| {
-        b.iter(|| Tokenizer::new(black_box(EMPTY_SOURCE), &DUOS_RUST))
+        b.iter(|| black_box(Tokenizer::new(EMPTY_SOURCE, &DUOS_RUST)))
     });
 }
 

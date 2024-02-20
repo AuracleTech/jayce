@@ -23,28 +23,24 @@ fn criterion_benchmark(c: &mut Criterion) {
         }
     }
 
-    let mut total = 0;
-
     c.bench_function(
         "Tokenize Yuumi vulkan game engine",
         |b: &mut criterion::Bencher<'_>| {
             b.iter(|| {
-                total = 0;
-
                 for (_, source) in files.iter() {
-                    let mut tokenizer = Tokenizer::new(black_box(source), black_box(&DUOS_RUST));
-
-                    let subtotal_tokens = match tokenizer.tokenize_all() {
-                        Ok(tokens) => tokens.len(),
-                        Err(err) => panic!("{}", err),
-                    };
-
-                    total += subtotal_tokens;
+                    let mut tokenizer = Tokenizer::new(source, &DUOS_RUST);
+                    let tokens = tokenizer.tokenize_all().unwrap();
+                    black_box(tokens);
                 }
             })
         },
     );
 
+    let mut total = 0;
+    for (_, source) in files.iter() {
+        let mut tokenizer = Tokenizer::new(source, &DUOS_RUST);
+        total += tokenizer.tokenize_all().unwrap().len();
+    }
     println!("Amount of tokens created : {}", total);
 }
 
