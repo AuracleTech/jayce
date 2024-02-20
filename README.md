@@ -5,7 +5,7 @@ jayce is a tokenizer 🌌
 ##### Example
 
 ```rust
-use jayce::{Duo, SeekResult, Tokenizer};
+use jayce::{Duo, Tokenizer};
 
 const SOURCE: &str = "Excalibur = 5000$; // Your own language!";
 
@@ -26,12 +26,8 @@ lazy_static::lazy_static! {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut tokenizer = Tokenizer::new(SOURCE, &DUOS);
 
-    while let Ok(tokenize_result) = tokenizer.seek() {
-        match tokenize_result {
-            SeekResult::Match(token) => println!("{:?}", token),
-            SeekResult::Skipped => continue,
-            SeekResult::End => break,
-        }
+    while let Some(token) = tokenizer.consume()? {
+        println!("{:?}", token);
     }
 
     Ok(())
@@ -49,34 +45,26 @@ Token { kind: "semicolon", value: ";", pos: (1, 18) }
 
 ##### Info
 
-`tokenizer.seek()` returns `Result`
+`Tokenizer::consume` returns `Result Option Token`
 
-1. `Ok(SeekResult)` seeking next token is successful
-2. `Err(error)` an error occurs
+1. `Ok Some` match found
+2. `Ok None` end of source
+3. `Err` an error occurs
 
-`SeekResult`
+`Tokenizer::tokenize_all` returns `Result Vec Token`
 
-3. `Match(Token<T>)` match found
-4. `Skipped` match found but token is not preserved
-5. `End` end of source
-
-`tokenizer.tokenize_all()` returns `Result`
-
-1. `Ok(Vec<Tokens>)` tokens are found
-2. `Err(error)` an error occurs
+1. `Ok Vec Token` tokens matched
+2. `Err` an error occurs
 
 ##### Performances
 
-tokenization of [Yuumi](https://github.com/AuracleTech/yuumi) project's language tokens
-
-- `3.8 milliseconds` with referenced tokens and serialization disabled
-- `5.0 milliseconds` with owned tokens and serialization available
+initialization in ~`3 nanoseconds`
+tokenization of [Yuumi](https://github.com/AuracleTech/yuumi) in ~`4 milliseconds`
 
 ##### Features
 
-- `serialization`
 - `generic-simd`
-- `runtime-dispatch-simd` enabled by default, to disable modify `Cargo.toml` as follows
+- `runtime-dispatch-simd` default enabled, to disable modify `Cargo.toml` as follows
 
 ```toml
 jayce = { version = "X.X.X", default-features = false }

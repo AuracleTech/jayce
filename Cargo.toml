@@ -1,6 +1,6 @@
 [package]
 name = "jayce"
-version = "10.0.1"
+version = "11.0.0"
 edition = "2021"
 description = "jayce is a tokenizer 🌌"
 repository = "https://github.com/AuracleTech/jayce"
@@ -10,11 +10,9 @@ license = "MIT"
 bytecount = "0.6.7"
 lazy_static = "1.4.0"
 regex = "1.10.3"
-serde = { version = "1.0.196", features = ["derive"], optional = true }
 
 [dev-dependencies]
 criterion = { version = "0.5.1", features = ["html_reports"] }
-serde_json = "1.0.113"
 
 [[bench]]
 name = "initialization"
@@ -26,5 +24,4 @@ harness = false
 
 [features]
 default = ["bytecount/runtime-dispatch-simd"]
-serialization = ["serde"]
 generic-simd = ["bytecount/generic-simd"]

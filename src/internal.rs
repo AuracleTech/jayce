@@ -1,9 +1,6 @@
 use crate::Duo;
-#[cfg(feature = "serialization")]
-use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
-#[cfg_attr(feature = "serialization", derive(Serialize, Deserialize))]
 pub enum KindsRust {
     Whitespace,
     CommentLine,

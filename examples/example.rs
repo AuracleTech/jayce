@@ -1,4 +1,4 @@
-use jayce::{Duo, SeekResult, Tokenizer};
+use jayce::{Duo, Tokenizer};
 
 const SOURCE: &str = "Excalibur = 5000$; // Your own language!";
 
@@ -19,12 +19,8 @@ lazy_static::lazy_static! {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut tokenizer = Tokenizer::new(SOURCE, &DUOS);
 
-    while let Ok(tokenize_result) = tokenizer.seek() {
-        match tokenize_result {
-            SeekResult::Match(token) => println!("{:?}", token),
-            SeekResult::Skipped => continue,
-            SeekResult::End => break,
-        }
+    while let Some(token) = tokenizer.consume()? {
+        println!("{:?}", token);
     }
 
     Ok(())
