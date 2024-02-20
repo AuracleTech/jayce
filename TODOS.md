@@ -1,11 +1,11 @@
 # TODO
 
-- [ ] Replace `lazy_static` by `LazyLock` when available in stable std release
+- [ ] replace `lazy_static` by `LazyLock` when available in stable std release
 
-- [ ] Multi-threading support
-- [ ] Improve performance and precision by removing `^` and parsing the whole file at once
-- [ ] Brainstorm `Duo` and duos structure
-- [ ] Improve `Duo::new` by `unwrap` on regex result
-- [ ]
+#### version 12
 
-- [ ] VERIFY `README`
+- [ ] multi-threading support
+- [ ] improve performance and precision by removing `^`
+- [ ] parsing the whole file at once
+- [ ] brainstorm `Duo` and duos structure
+- [ ] improve `Duo::new` by `unwrap` on regex result
