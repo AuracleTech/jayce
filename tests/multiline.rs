@@ -1,6 +1,6 @@
 use jayce::{Duo, Token, Tokenizer};
 
-const SOURCE: &str = r#"let dead_cat = "I mix my cat in a blender"
+const SOURCE: &str = r#"let kind_cat = "I calmly pet my cute cats"
 pancake_icecream
 
 very_multiline
@@ -34,7 +34,7 @@ const EXPECTED: [Token<&'static str>; 14] = [
     },
     Token {
         kind: &"identifier",
-        value: "dead_cat",
+        value: "kind_cat",
         pos: (1, 5),
     },
     Token {
@@ -54,7 +54,7 @@ const EXPECTED: [Token<&'static str>; 14] = [
     },
     Token {
         kind: &"string",
-        value: "\"I mix my cat in a blender\"",
+        value: "\"I calmly pet my cute cats\"",
         pos: (1, 16),
     },
     Token {
