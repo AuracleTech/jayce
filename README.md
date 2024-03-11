@@ -37,10 +37,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 ##### Result
 
 ```rust,ignore
-Token { kind: "name",       value: "Excalibur",  pos: (1, 1)  }
-Token { kind: "operator",   value: "=",          pos: (1, 11) }
-Token { kind: "price",      value: "5000$",      pos: (1, 13) }
-Token { kind: "semicolon",  value: ";",          pos: (1, 18) }
+Token { kind: "name",      value: "Excalibur", pos: (1, 1)  }
+Token { kind: "operator",  value: "=",         pos: (1, 11) }
+Token { kind: "price",     value: "5000$",     pos: (1, 13) }
+Token { kind: "semicolon", value: ";",         pos: (1, 18) }
 ```
 
 ##### Info
@@ -51,7 +51,7 @@ Token { kind: "semicolon",  value: ";",          pos: (1, 18) }
 2. `Ok None` end of source
 3. `Err` an error occurs
 
-`Tokenizer::tokenize_all` returns `Result Vec Token`
+`Tokenizer::consume_all` returns `Result Vec Token`
 
 1. `Ok Vec Token` tokens matched
 2. `Err` an error occurs
