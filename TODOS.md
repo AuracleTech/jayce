@@ -2,7 +2,7 @@
 
 - [ ] replace `lazy_static` by `LazyLock` when available in stable std release
 
-#### version 12
+#### new features
 
 - [ ] multi-threading support
 - [ ] improve performance and precision by removing `^`
