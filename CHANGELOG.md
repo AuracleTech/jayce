@@ -7,13 +7,13 @@
 
 ## [9.0.0] - 2023-08-16
 
-- users can now configure whitespace characters, replacing the previous hardcoded approach
+- replace hardcoded whitespace characters to configurable
 
 ## [10.0.0] - 2024-02-14
 
 - `Duo` struct replacing `duos` macro
-- `next` method for `Tokenizer` is now `seek`
-- `SeekResult` enum for `Tokenizer::seek`
+- `Tokenizer::next` is now `Tokenizer::seek`
+- `Tokenizer::seek` returns `SeekResult`
 
 ## [11.0.0] - 2024-02-18
 
@@ -25,3 +25,8 @@
 - futurproofing tests by expect matching the whole `Token` struct
 - `serialization` feature nuked
 - fixed `Tokenizer::tokenize_all` not returning errors properly
+
+## [12.0.0] - 2024-03-11
+
+- implemented `Tokenizer::seek`
+- renamed `Tokenizer::tokenize_all` to `Tokenizer::consume_all`
