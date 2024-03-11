@@ -37,10 +37,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 ##### Result
 
 ```rust,ignore
-Token { kind: "name", value: "Excalibur", pos: (1, 1) }
-Token { kind: "operator", value: "=", pos: (1, 11) }
-Token { kind: "price", value: "5000$", pos: (1, 13) }
-Token { kind: "semicolon", value: ";", pos: (1, 18) }
+Token { kind: "name",       value: "Excalibur",  pos: (1, 1)  }
+Token { kind: "operator",   value: "=",          pos: (1, 11) }
+Token { kind: "price",      value: "5000$",      pos: (1, 13) }
+Token { kind: "semicolon",  value: ";",          pos: (1, 18) }
 ```
 
 ##### Info
