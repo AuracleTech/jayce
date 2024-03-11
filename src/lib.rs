@@ -33,10 +33,7 @@ pub struct Token<'a, T> {
     pub pos: (usize, usize),
 }
 
-impl<'a, T> Tokenizer<'a, T>
-where
-    T: Clone,
-{
+impl<'a, T> Tokenizer<'a, T> {
     #[inline]
     pub fn new(source: &'a str, duos: &'a [Duo<T>]) -> Self {
         Self {
@@ -92,7 +89,10 @@ where
         Ok(None)
     }
 
-    pub fn peek(&mut self) -> Result<Option<Token<'a, T>>, Box<dyn std::error::Error>> {
+    pub fn peek(&mut self) -> Result<Option<Token<'a, T>>, Box<dyn std::error::Error>>
+    where
+        T: Clone,
+    {
         if self.next.is_none() {
             self.next = self.advance()?;
         }
