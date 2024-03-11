@@ -46,7 +46,6 @@ impl<'a, T> Tokenizer<'a, T> {
         }
     }
 
-    // OPTIMIZE might inline the advance method
     fn advance(&mut self) -> Result<Option<Token<'a, T>>, Box<dyn std::error::Error>> {
         while self.cursor < self.source.len() {
             let mut matched = false;
