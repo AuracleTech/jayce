@@ -3,7 +3,7 @@ use jayce::{Duo, Token, Tokenizer};
 const SOURCE: &str = "abc 123 xyz456 // comment";
 const SOURCE_PANIC: &str = "🦀";
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Kinds {
     CommentLine,
     Whitespace,
@@ -47,7 +47,7 @@ const EXPECTED: [Token<Kinds>; 4] = [
 
 #[test]
 fn tokenize_all() {
-    let tokens = Tokenizer::new(SOURCE, &DUOS).tokenize_all().unwrap();
+    let tokens = Tokenizer::new(SOURCE, &DUOS).consume_all().unwrap();
     assert_eq!(tokens, EXPECTED);
     assert_eq!(tokens.len(), EXPECTED.len());
 }
@@ -56,5 +56,5 @@ fn tokenize_all() {
 #[should_panic(expected = "Failed to match at line")]
 fn tokenize_all_should_panic() {
     let mut tokenizer = Tokenizer::new(SOURCE_PANIC, &DUOS);
-    let _ = tokenizer.tokenize_all().unwrap();
+    let _ = tokenizer.consume_all().unwrap();
 }

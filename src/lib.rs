@@ -20,19 +20,23 @@ impl<T> Duo<T> {
 pub struct Tokenizer<'a, T> {
     source: &'a str,
     duos: &'a [Duo<T>],
-    cursor: usize,
-    line: usize,
-    column: usize,
+    pub cursor: usize,
+    pub line: usize,
+    pub column: usize,
+    next: Option<Token<'a, T>>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Token<'a, T> {
     pub kind: &'a T,
     pub value: &'a str,
     pub pos: (usize, usize),
 }
 
-impl<'a, T> Tokenizer<'a, T> {
+impl<'a, T> Tokenizer<'a, T>
+where
+    T: Clone,
+{
     #[inline]
     pub fn new(source: &'a str, duos: &'a [Duo<T>]) -> Self {
         Self {
@@ -41,10 +45,12 @@ impl<'a, T> Tokenizer<'a, T> {
             cursor: 0,
             line: 1,
             column: 1,
+            next: None,
         }
     }
 
-    pub fn consume(&mut self) -> Result<Option<Token<'a, T>>, Box<dyn std::error::Error>> {
+    // OPTIMIZE might inline the advance method
+    fn advance(&mut self) -> Result<Option<Token<'a, T>>, Box<dyn std::error::Error>> {
         while self.cursor < self.source.len() {
             let mut matched = false;
 
@@ -86,8 +92,26 @@ impl<'a, T> Tokenizer<'a, T> {
         Ok(None)
     }
 
-    pub fn tokenize_all(&mut self) -> Result<Vec<Token<'a, T>>, Box<dyn std::error::Error>> {
-        let mut tokens = Vec::new();
+    pub fn peek(&mut self) -> Result<Option<Token<'a, T>>, Box<dyn std::error::Error>> {
+        if self.next.is_none() {
+            self.next = self.advance()?;
+        }
+
+        Ok(self.next.clone())
+    }
+
+    pub fn consume(&mut self) -> Result<Option<Token<'a, T>>, Box<dyn std::error::Error>> {
+        if self.next.is_none() {
+            self.next = self.advance()?;
+        }
+
+        let result = Ok(self.next.take());
+        self.next = self.advance()?;
+        result
+    }
+
+    pub fn consume_all(&mut self) -> Result<Vec<Token<'a, T>>, Box<dyn std::error::Error>> {
+        let mut tokens: Vec<Token<'_, T>> = Vec::new();
         while let Some(token) = self.consume()? {
             tokens.push(token);
         }

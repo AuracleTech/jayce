@@ -95,8 +95,40 @@ const EXPECTED: [Token<&'static str>; 14] = [
 ];
 
 #[test]
-fn multiline() {
-    let tokens = Tokenizer::new(SOURCE, &DUOS).consume_all().unwrap();
+fn peek_test() {
+    let mut tokenizer = Tokenizer::new(SOURCE, &DUOS);
+    let mut tokens = Vec::new();
+
+    if let Some(token) = tokenizer.peek().unwrap() {
+        assert_eq!(token, EXPECTED[0]);
+    }
+    if let Some(token) = tokenizer.peek().unwrap() {
+        assert_eq!(token, EXPECTED[0]);
+    }
+
+    for expected in EXPECTED.iter() {
+        let peeked = tokenizer.peek().unwrap();
+        let consumed = tokenizer.consume().unwrap();
+        assert_eq!(peeked, consumed);
+        tokens.push(consumed.unwrap());
+        if consumed.is_some() {
+            assert_eq!(consumed.unwrap(), *expected);
+        } else {
+            panic!("Early termination, expected token.")
+        }
+    }
+
+    let token = tokenizer.consume().unwrap();
+    assert_eq!(token, None);
+    let token = tokenizer.peek().unwrap();
+    assert_eq!(token, None);
+    let token = tokenizer.consume().unwrap();
+    assert_eq!(token, None);
+    let token = tokenizer.peek().unwrap();
+    assert_eq!(token, None);
+    let token = tokenizer.consume().unwrap();
+    assert_eq!(token, None);
+
     assert_eq!(tokens, EXPECTED);
     assert_eq!(tokens.len(), EXPECTED.len());
 }

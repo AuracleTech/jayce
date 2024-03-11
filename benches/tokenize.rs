@@ -29,7 +29,7 @@ fn criterion_benchmark(c: &mut Criterion) {
             b.iter(|| {
                 for (_, source) in files.iter() {
                     let mut tokenizer = Tokenizer::new(source, &DUOS_RUST);
-                    let tokens = tokenizer.tokenize_all().unwrap();
+                    let tokens = tokenizer.consume_all().unwrap();
                     black_box(tokens);
                 }
             })
@@ -39,7 +39,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     let mut total = 0;
     for (_, source) in files.iter() {
         let mut tokenizer = Tokenizer::new(source, &DUOS_RUST);
-        total += tokenizer.tokenize_all().unwrap().len();
+        total += tokenizer.consume_all().unwrap().len();
     }
     println!("Amount of tokens created : {}", total);
 }

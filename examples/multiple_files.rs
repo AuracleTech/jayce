@@ -26,7 +26,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for (filename, source) in files.iter() {
         let mut tokenizer = Tokenizer::new(source, &DUOS_RUST);
 
-        let tokens_for_file = tokenizer.tokenize_all()?.len();
+        let tokens_for_file = tokenizer.consume_all()?.len();
 
         println!("File {} has {} tokens", filename, tokens_for_file);
 

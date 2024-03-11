@@ -35,7 +35,7 @@ const EXPECTED: [Token<u64>; 3] = [
 
 #[test]
 fn custom_duos() {
-    let tokens = Tokenizer::new(SOURCE, &DUOS).tokenize_all().unwrap();
+    let tokens = Tokenizer::new(SOURCE, &DUOS).consume_all().unwrap();
     assert_eq!(tokens, EXPECTED);
     assert_eq!(tokens.len(), EXPECTED.len());
 }
