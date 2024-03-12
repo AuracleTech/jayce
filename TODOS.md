@@ -1,9 +1,5 @@
 # TODO
 
-- [ ] replace `lazy_static` by `LazyLock` when available in stable std release
-
-#### new features
-
 - [ ] multi-threading support
 - [ ] improve performance and precision by removing `^`
 - [ ] parsing the whole file at once

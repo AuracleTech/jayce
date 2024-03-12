@@ -1,4 +1,4 @@
-use jayce::{internal::DUOS_RUST, Tokenizer};
+use jayce::{internal::duos_rust, Tokenizer};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let current_dir = std::env::current_dir()
@@ -24,7 +24,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut total_token_count = 0;
 
     for (filename, source) in files.iter() {
-        let mut tokenizer = Tokenizer::new(source, &DUOS_RUST);
+        let mut tokenizer = Tokenizer::new(source, duos_rust());
 
         let tokens_for_file = tokenizer.consume_all()?.len();
 

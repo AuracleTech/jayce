@@ -30,3 +30,7 @@
 
 - implemented `Tokenizer::seek`
 - renamed `Tokenizer::tokenize_all` to `Tokenizer::consume_all`
+
+## [12.1.0] - 2024-03-12
+
+- replace `lazy_static` with `OnceLock`, removing a dependency

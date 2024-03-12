@@ -1,12 +1,12 @@
 #[allow(unused_imports)]
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use jayce::{internal::DUOS_RUST, Tokenizer};
+use jayce::{internal::duos_rust, Tokenizer};
 
 const EMPTY_SOURCE: &str = "";
 
 fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("initialization", |b| {
-        b.iter(|| black_box(Tokenizer::new(EMPTY_SOURCE, &DUOS_RUST)))
+        b.iter(|| black_box(Tokenizer::new(EMPTY_SOURCE, duos_rust())))
     });
 }
 

@@ -1,4 +1,5 @@
 use jayce::{Duo, Token, Tokenizer};
+use std::sync::OnceLock;
 
 const SOURCE: &str = r#"let kind_cat = "I calmly pet my cute cats"
 pancake_icecream
@@ -7,18 +8,20 @@ very_multiline
 
 "#;
 
-lazy_static::lazy_static! {
-    static ref DUOS: Vec<Duo<&'static str>> = vec![
-        Duo::new("whitespace", r"^[^\S\n]+", true),
-        Duo::new("comment_line", r"^//(.*)", true),
-        Duo::new("comment_block", r"^/\*(.|\n)*?\*/", true),
-        Duo::new("newline", r"^\n", true),
-
-        Duo::new("operator", r"^=", true),
-        Duo::new("keyword", r"^let", true),
-        Duo::new("string", r#"^"[^"]*""#, true),
-        Duo::new("identifier", r"^[a-z_]+", true)
-    ];
+fn duos() -> &'static Vec<Duo<&'static str>> {
+    static DUOS: OnceLock<Vec<Duo<&'static str>>> = OnceLock::new();
+    DUOS.get_or_init(|| {
+        vec![
+            Duo::new("whitespace", r"^[^\S\n]+", true),
+            Duo::new("comment_line", r"^//(.*)", true),
+            Duo::new("comment_block", r"^/\*(.|\n)*?\*/", true),
+            Duo::new("newline", r"^\n", true),
+            Duo::new("operator", r"^=", true),
+            Duo::new("keyword", r"^let", true),
+            Duo::new("string", r#"^"[^"]*""#, true),
+            Duo::new("identifier", r"^[a-z_]+", true),
+        ]
+    })
 }
 
 const EXPECTED: [Token<&'static str>; 14] = [
@@ -96,7 +99,7 @@ const EXPECTED: [Token<&'static str>; 14] = [
 
 #[test]
 fn peek_test() {
-    let mut tokenizer = Tokenizer::new(SOURCE, &DUOS);
+    let mut tokenizer = Tokenizer::new(SOURCE, duos());
     let mut tokens = Vec::new();
 
     if let Some(token) = tokenizer.peek().unwrap() {

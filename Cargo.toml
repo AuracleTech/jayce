@@ -1,6 +1,6 @@
 [package]
 name = "jayce"
-version = "12.0.0"
+version = "12.1.0"
 edition = "2021"
 description = "jayce is a tokenizer 🌌"
 repository = "https://github.com/AuracleTech/jayce"
@@ -8,7 +8,6 @@ license = "MIT"
 
 [dependencies]
 bytecount = "0.6.7"
-lazy_static = "1.4.0"
 regex = "1.10.3"
 
 [dev-dependencies]

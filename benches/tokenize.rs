@@ -1,6 +1,6 @@
 #[allow(unused_imports)]
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use jayce::{internal::DUOS_RUST, Tokenizer};
+use jayce::{internal::duos_rust, Tokenizer};
 
 fn criterion_benchmark(c: &mut Criterion) {
     let current_dir = std::env::current_dir()
@@ -28,7 +28,7 @@ fn criterion_benchmark(c: &mut Criterion) {
         |b: &mut criterion::Bencher<'_>| {
             b.iter(|| {
                 for (_, source) in files.iter() {
-                    let mut tokenizer = Tokenizer::new(source, &DUOS_RUST);
+                    let mut tokenizer = Tokenizer::new(source, duos_rust());
                     let tokens = tokenizer.consume_all().unwrap();
                     black_box(tokens);
                 }
@@ -38,7 +38,7 @@ fn criterion_benchmark(c: &mut Criterion) {
 
     let mut total = 0;
     for (_, source) in files.iter() {
-        let mut tokenizer = Tokenizer::new(source, &DUOS_RUST);
+        let mut tokenizer = Tokenizer::new(source, duos_rust());
         total += tokenizer.consume_all().unwrap().len();
     }
     println!("Amount of tokens created : {}", total);
