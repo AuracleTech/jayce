@@ -1,4 +1,3 @@
-#[allow(unused_imports)]
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use jayce::{internal::duos_rust, Tokenizer};
 
@@ -24,7 +23,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     }
 
     c.bench_function(
-        "Tokenize Yuumi vulkan game engine",
+        "Tokenize Yuumi vulkan game engine with jayce",
         |b: &mut criterion::Bencher<'_>| {
             b.iter(|| {
                 for (_, source) in files.iter() {
@@ -36,12 +35,12 @@ fn criterion_benchmark(c: &mut Criterion) {
         },
     );
 
-    let mut total = 0;
+    let mut total_jayce = 0;
     for (_, source) in files.iter() {
         let mut tokenizer = Tokenizer::new(source, duos_rust());
-        total += tokenizer.consume_all().unwrap().len();
+        total_jayce += tokenizer.consume_all().unwrap().len();
     }
-    println!("Amount of tokens created : {}", total);
+    println!("Total Jayce tokens: {}", total_jayce);
 }
 
 criterion_group!(benches, criterion_benchmark);

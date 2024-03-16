@@ -12,9 +12,14 @@ regex = "1.10.3"
 
 [dev-dependencies]
 criterion = { version = "0.5.1", features = ["html_reports"] }
+logos = "0.14.0"
 
 [[bench]]
 name = "initialization"
+harness = false
+
+[[bench]]
+name = "logos"
 harness = false
 
 [[bench]]
